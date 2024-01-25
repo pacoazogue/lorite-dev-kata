@@ -1,16 +1,24 @@
 package dev.franciscolorite.pruebatecnicabcnc.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter @Setter @ToString
 @Entity
 public class Photo {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer albumId;
     private String title;
     private String url;
+    private String thumbnailUrl;
+
+    @ManyToOne
+    @JoinColumn(name="album_id")
+    private Album album;
 
     /**
      * Constructor vacio con el propósito de JPA
@@ -20,54 +28,14 @@ public class Photo {
      */
     public Photo(){}
 
-    public Photo(Integer id, Integer albumId, String title, String url) {
+    public Photo(Integer id, String title, String url, String thumbnailUrl, Album album) {
         this.id = id;
-        this.albumId = albumId;
         this.title = title;
         this.url = url;
+        this.thumbnailUrl = thumbnailUrl;
+        this.album = album;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getAlbumId() {
-        return albumId;
-    }
-
-    public void setAlbumId(Integer albumId) {
-        this.albumId = albumId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    @Override
-    public String toString() {
-        return "Photo{" +
-                "id=" + id +
-                ", albumId=" + albumId +
-                ", title='" + title + '\'' +
-                ", url='" + url + '\'' +
-                '}';
-    }
 }
 
 

@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    name: lorite
+    generate-unique-name: false
+  h2:
+    console:
+      enabled: true
+  codec:
+      max-in-memory-size: 50MB

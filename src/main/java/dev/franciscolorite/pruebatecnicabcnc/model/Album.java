@@ -1,53 +1,31 @@
 package dev.franciscolorite.pruebatecnicabcnc.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.List;
 
 @Entity
+@Getter @Setter @ToString
 public class Album {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer userId;
     private String title;
 
+    @OneToMany (mappedBy = "album", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Photo> photoList;
+
     public Album(){}
 
-    public Album(Integer id, Integer userId, String title) {
+    public Album(Integer id, Integer userId, String title, List<Photo> photoList) {
         this.id = id;
         this.userId = userId;
         this.title = title;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    @Override
-    public String toString() {
-        return "Album{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", title='" + title + '\'' +
-                '}';
+        this.photoList = photoList;
     }
 }
