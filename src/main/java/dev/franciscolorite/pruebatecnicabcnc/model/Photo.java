@@ -11,14 +11,11 @@ public class Photo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String title;
     private String url;
     private String thumbnailUrl;
-
-    @ManyToOne
-    @JoinColumn(name="album_id")
-    private Album album;
+    private Long albumId;
 
     /**
      * Constructor vacio con el propósito de JPA
@@ -28,12 +25,12 @@ public class Photo {
      */
     public Photo(){}
 
-    public Photo(Integer id, String title, String url, String thumbnailUrl, Album album) {
+    public Photo(Long id, Long albumId, String title, String url, String thumbnailUrl) {
         this.id = id;
+        this.albumId = albumId;
         this.title = title;
         this.url = url;
         this.thumbnailUrl = thumbnailUrl;
-        this.album = album;
     }
 
 }

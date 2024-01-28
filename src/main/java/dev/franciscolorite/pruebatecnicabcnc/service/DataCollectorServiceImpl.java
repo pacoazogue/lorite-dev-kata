@@ -50,7 +50,6 @@ public class DataCollectorServiceImpl implements DataCollectorService {
         List<Album> albums = jsonPlaceHolderService.loadAlbums();
         albumRepository.saveAll(albums);
 
-
         return ResponseEntity.ok(LOAD_DATA_FROM_JSONPLACEHOLDER_SERVER_SUCCESS_MESSAGE);
     }
 }
