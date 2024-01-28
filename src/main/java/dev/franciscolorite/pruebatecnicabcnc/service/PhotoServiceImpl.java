@@ -1,22 +1,114 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
+import dev.franciscolorite.pruebatecnicabcnc.api.PhotoMapper;
+import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoNotFoundException;
+import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import dev.franciscolorite.pruebatecnicabcnc.model.PhotoDto;
+import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class PhotoServiceImpl implements PhotoService{
+public class PhotoServiceImpl implements PhotoService {
 
-    public PhotoServiceImpl() {
+    private final PhotoRepository photoRepository;
+    private final PhotoMapper photoMapper;
+
+    public PhotoServiceImpl(PhotoRepository photoRepository, PhotoMapper photoMapper) {
+
+        this.photoRepository = photoRepository;
+        this.photoMapper = photoMapper;
     }
 
-    public List<Photo> loadPhotos() {
+    @Override
+    public List<PhotoDto> findAll() {
 
-        return null;
+        List<Photo> photoList = photoRepository.findAll();
+
+        return photoList.stream()
+                .map(photoMapper::entityToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PhotoDto findById(Long photoId) throws PhotoNotFoundException {
+
+        Optional<Photo> photoOpt = photoRepository.findById(photoId);
+
+        if (photoOpt.isEmpty()) {
+            throw new PhotoNotFoundException(photoId);
+        }
+
+        return photoMapper.entityToDto(photoOpt.get());
+    }
+
+    @Override
+    public PhotoDto createPhoto(PhotoDto photoDto) {
+
+        Photo photo =  photoMapper.dtoToEntity(photoDto);
+
+        Photo createdPhoto = photoRepository.save(photo);
+
+        return photoMapper.entityToDto(createdPhoto);
+    }
+
+    @Override
+    public void delete(Long photoId) {
+
+
+
+        photoRepository.deleteById(photoId);
+    }
+
+    @Override
+    public PhotoDto updatePhoto(Long photoId, PhotoDto photoDto) {
+
+        PhotoDto result;
+
+        Optional<Photo> photoOpt = photoRepository.findById(photoId);
+
+        Photo photo;
+
+        if (photoOpt.isEmpty()) {
+            result = createPhoto(photoDto);
+        } else {
+
+            photo = photoOpt.get();
+
+            photo.setTitle(photoDto.getTitle());
+            photo.setUrl(photoDto.getUrl());
+            photo.setThumbnailUrl(photoDto.getThumbnailUrl());
+            photo.setAlbumId(Long.valueOf(photoDto.getAlbumId()));
+
+            photoRepository.save(photo);
+            result = photoMapper.entityToDto(photo);
+        }
+
+        return result;
+    }
+
+    @Override
+    public void updatePhotoTitle(Long photoId, String title) throws PhotoWithSameTitleException, PhotoNotFoundException {
+
+        Optional<Photo> photoOpt = photoRepository.findById(photoId);
+
+        if (photoOpt.isPresent()) {
+
+            Photo photo = photoOpt.get();
+
+            if (photo.getTitle().equals(title)) {
+                throw new PhotoWithSameTitleException(photoId, title);
+            } else {
+
+                photo.setTitle(title);
+                photoRepository.save(photo);
+            }
+        } else {
+            throw new PhotoNotFoundException(photoId);
+        }
     }
 }

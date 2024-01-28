@@ -1,10 +1,17 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
-import dev.franciscolorite.pruebatecnicabcnc.model.Album;
+import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
+import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
+import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
 
 import java.util.List;
 
 public interface AlbumService {
 
-    List<Album> loadAlbums();
+    List<AlbumDto> findAll();
+    AlbumDto findById(Long albumId) throws AlbumNotFoundException;
+    AlbumDto createAlbum(AlbumDto albumDto);
+    void delete(Long albumId);
+    AlbumDto updateAlbum(Long albumId, AlbumDto albumDto);
+    void updateAlbumTitle(Long albumId, String title) throws AlbumWithSameTitleException, AlbumNotFoundException;
 }
