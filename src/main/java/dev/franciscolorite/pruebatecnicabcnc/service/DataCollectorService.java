@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface DataCollectorService {
 
-    String LOAD_DATA_FROM_JSONPLACEHOLDER_SERVER_SUCCESS_MESSAGE = "Albums y fotos importados correctamente";
+    String LOAD_DATA_FROM_JSONPLACEHOLDER_SERVER_SUCCESS_MESSAGE = "Datos de Albums y fotos importados correctamente";
+
     ResponseEntity<?> loadDataFromJsonPlaceHolderServerAndSaveIntoH2Memory();
     List<AlbumDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory();
 }
