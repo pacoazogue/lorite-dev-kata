@@ -15,6 +15,7 @@ public class Photo {
     private String title;
     private String url;
     private String thumbnailUrl;
+
     private Long albumId;
 
     /**
