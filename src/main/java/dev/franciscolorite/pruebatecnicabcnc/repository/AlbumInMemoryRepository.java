@@ -14,6 +14,7 @@ import java.util.Optional;
  */
 public class AlbumInMemoryRepository implements AlbumRepository {
 
+
     private final HashMap<Long, Album> albumsMap;
 
     public AlbumInMemoryRepository() {

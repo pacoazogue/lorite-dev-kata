@@ -1,6 +1,7 @@
 package dev.franciscolorite.pruebatecnicabcnc.controller;
 
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.DataCollectorH2Response;
 import dev.franciscolorite.pruebatecnicabcnc.service.DataCollectorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +32,7 @@ public class DataCollectorController {
             }
     )
     @GetMapping("/loadDataIntoH2Memory")
-    public ResponseEntity<?> loadDataFromJsonPlaceHolderServerIntoH2Memory() {
+    public DataCollectorH2Response loadDataFromJsonPlaceHolderServerIntoH2Memory() {
 
         return dataCollectorService.loadDataFromJsonPlaceHolderServerAndSaveIntoH2Memory();
 

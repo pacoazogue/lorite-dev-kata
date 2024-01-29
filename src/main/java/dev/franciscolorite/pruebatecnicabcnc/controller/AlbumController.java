@@ -82,6 +82,11 @@ public class AlbumController {
         return albumResponse;
     }
 
+    @GetMapping("/unlinkphotosfromalbum/{albumId}")
+    public AlbumDto unlinkPhotosFromAlbum(@PathVariable Long albumId) throws AlbumNotFoundException {
+        return albumService.unlinkPhotosFromAlbum(albumId);
+    }
+
     private AlbumResponse buildAlbumResponse(AlbumDto albumDto, String responseMessage) {
 
         AlbumResponse albumResponse = new AlbumResponse();

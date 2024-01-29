@@ -14,4 +14,6 @@ public interface AlbumService {
     void delete(Long albumId);
     AlbumDto updateAlbum(Long albumId, AlbumDto albumDto);
     void updateAlbumTitle(Long albumId, String title) throws AlbumWithSameTitleException, AlbumNotFoundException;
+
+    AlbumDto unlinkPhotosFromAlbum(Long albumId) throws AlbumNotFoundException;
 }
