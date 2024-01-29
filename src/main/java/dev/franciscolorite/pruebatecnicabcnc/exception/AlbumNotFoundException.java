@@ -10,6 +10,6 @@ public class AlbumNotFoundException extends Exception {
 
     @Override
     public String getMessage() {
-        return String.format("El album con identificador %d no está registrada en el sistema", albumId);
+        return String.format("El album con identificador %d no está registrado en el sistema", albumId);
     }
 }

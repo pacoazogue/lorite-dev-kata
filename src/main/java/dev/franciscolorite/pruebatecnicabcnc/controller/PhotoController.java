@@ -7,6 +7,7 @@ import dev.franciscolorite.pruebatecnicabcnc.model.PhotoResponse;
 import dev.franciscolorite.pruebatecnicabcnc.service.PhotoService;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +16,8 @@ import java.util.List;
 @RequestMapping("/bcncapp/api/photos")
 public class PhotoController {
 
-    public static final String PHOTO_CREATED_MESSAGE = "La fotografía ha sido creada correctamente";
-    public static final String PHOTO_UPDATED_MESSAGE = "La fotografía ha sido actualizada correctamente";
+    public static final String PHOTO_CREATED_MESSAGE = "La fotografía se ha creado correctamente";
+    public static final String PHOTO_UPDATED_MESSAGE = "La fotografía se ha actualizado correctamente";
     public static final String PHOTO_DELETED_MESSAGE = "La fotografía ha sido borrada correctamente";
     public static final String PHOTO_TITLE_UPDATED_MESSAGE =
             "El título de la fotografía ha sido actualizado correctamente";
@@ -40,19 +41,21 @@ public class PhotoController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public PhotoResponse createPhoto(@RequestBody @NotNull PhotoDto photoDto) {
 
         PhotoDto photoDtoCreated = photoService.createPhoto(photoDto);
 
-        return buildPhotoResponse(photoDtoCreated.getId(), PHOTO_CREATED_MESSAGE);
+        return buildPhotoResponse(PHOTO_CREATED_MESSAGE, photoDtoCreated);
     }
 
     @PutMapping("/{photoId}")
+    @ResponseStatus(HttpStatus.CREATED)
     public PhotoResponse updatePhoto(@RequestBody @NotNull PhotoDto photoDto, @PathVariable Long photoId) {
 
         PhotoDto photoDtoFromUpdate = photoService.updatePhoto(photoId, photoDto);
 
-        return buildPhotoResponse(photoDtoFromUpdate.getId(), PHOTO_UPDATED_MESSAGE);
+        return buildPhotoResponse(PHOTO_UPDATED_MESSAGE, photoDtoFromUpdate);
     }
 
 
@@ -61,7 +64,10 @@ public class PhotoController {
 
         photoService.delete(photoId);
 
-        return buildPhotoResponse(photoId, PHOTO_DELETED_MESSAGE);
+        PhotoResponse photoResponse = new PhotoResponse();
+        photoResponse.setResponseMessage(PHOTO_DELETED_MESSAGE);
+
+        return photoResponse;
     }
 
     @PatchMapping("/{photoId}")
@@ -70,21 +76,20 @@ public class PhotoController {
 
         photoService.updatePhotoTitle(photoId, title);
 
-        return buildPhotoResponse(photoId, PHOTO_TITLE_UPDATED_MESSAGE);
-    }
-
-    private PhotoResponse buildPhotoResponse(Long photoId, String responseMessage) {
-
         PhotoResponse photoResponse = new PhotoResponse();
-
-        photoResponse.setResponseMessage(responseMessage);
-        photoResponse.setId(photoId);
+        photoResponse.setResponseMessage(PHOTO_TITLE_UPDATED_MESSAGE);
 
         return photoResponse;
     }
 
+    private PhotoResponse buildPhotoResponse(String responseMessage, PhotoDto photoDto) {
 
+        PhotoResponse photoResponse = new PhotoResponse();
 
+        photoResponse.setResponseMessage(responseMessage);
+        photoResponse.setPhotoDto(photoDto);
 
+        return photoResponse;
+    }
 
 }

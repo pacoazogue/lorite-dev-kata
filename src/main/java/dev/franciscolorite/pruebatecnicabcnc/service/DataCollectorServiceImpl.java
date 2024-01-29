@@ -1,7 +1,6 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
 import dev.franciscolorite.pruebatecnicabcnc.api.AlbumMapper;
-import dev.franciscolorite.pruebatecnicabcnc.exception.GlobalExceptionHandler;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
 import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
