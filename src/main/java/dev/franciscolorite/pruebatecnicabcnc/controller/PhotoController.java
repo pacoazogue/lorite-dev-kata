@@ -52,7 +52,7 @@ public class PhotoController {
 
     @PutMapping("/{photoId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public PhotoResponse updatePhoto(@RequestBody @NotNull PhotoDto photoDto, @PathVariable Long photoId) {
+    public PhotoResponse updatePhoto(@RequestBody @NotNull @Valid PhotoDto photoDto, @PathVariable @NotEmpty Long photoId) {
 
         PhotoDto photoDtoFromUpdate = photoService.updatePhoto(photoId, photoDto);
 
