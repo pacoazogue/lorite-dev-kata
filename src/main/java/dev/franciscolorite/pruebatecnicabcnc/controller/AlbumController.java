@@ -1,5 +1,6 @@
 package dev.franciscolorite.pruebatecnicabcnc.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
@@ -7,6 +8,7 @@ import dev.franciscolorite.pruebatecnicabcnc.model.AlbumResponse;
 import dev.franciscolorite.pruebatecnicabcnc.service.AlbumService;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +17,8 @@ import java.util.List;
 @RequestMapping("/bcncapp/api/albums")
 public class AlbumController {
 
-    public static final String ALBUM_CREATED_MESSAGE = "El album ha sido creado correctamente";
-    public static final String ALBUM_UPDATED_MESSAGE = "El album ha sido actualizado correctamente";
+    public static final String ALBUM_CREATED_MESSAGE = "El album se ha creado correctamente";
+    public static final String ALBUM_UPDATED_MESSAGE = "El album se ha actualizado correctamente";
     public static final String ALBUM_DELETED_MESSAGE = "El album ha sido borrado correctamente";
     public static final String ALBUM_TITLE_UPDATED_MESSAGE = "El título del album ha sido actualizado correctamente";
 
@@ -39,19 +41,21 @@ public class AlbumController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public AlbumResponse createAlbum(@RequestBody @NotNull AlbumDto albumDto) {
 
         AlbumDto albumDtoCreated = albumService.createAlbum(albumDto);
 
-        return buildAlbumResponse(albumDtoCreated.getId(), ALBUM_CREATED_MESSAGE);
+        return buildAlbumResponse(albumDtoCreated, ALBUM_CREATED_MESSAGE);
     }
 
     @PutMapping("/{albumId}")
+    @ResponseStatus(HttpStatus.CREATED)
     public AlbumResponse updateAlbum(@RequestBody @NotNull AlbumDto albumDto, @PathVariable Long albumId) {
 
         AlbumDto albumDtoFromUpdate = albumService.updateAlbum(albumId, albumDto);
 
-        return buildAlbumResponse(albumDtoFromUpdate.getId(), ALBUM_UPDATED_MESSAGE);
+        return buildAlbumResponse(albumDtoFromUpdate, ALBUM_UPDATED_MESSAGE);
     }
 
 
@@ -60,7 +64,10 @@ public class AlbumController {
 
         albumService.delete(albumId);
 
-        return buildAlbumResponse(albumId, ALBUM_DELETED_MESSAGE);
+        AlbumResponse albumResponse = new AlbumResponse();
+        albumResponse.setResponseMessage(ALBUM_DELETED_MESSAGE);
+
+        return albumResponse;
     }
 
     @PatchMapping("/{albumId}")
@@ -69,15 +76,18 @@ public class AlbumController {
 
         albumService.updateAlbumTitle(albumId, title);
 
-        return buildAlbumResponse(albumId, ALBUM_TITLE_UPDATED_MESSAGE);
+        AlbumResponse albumResponse = new AlbumResponse();
+        albumResponse.setResponseMessage(ALBUM_TITLE_UPDATED_MESSAGE);
+
+        return albumResponse;
     }
 
-    private AlbumResponse buildAlbumResponse(Long albumId, String responseMessage) {
+    private AlbumResponse buildAlbumResponse(AlbumDto albumDto, String responseMessage) {
 
         AlbumResponse albumResponse = new AlbumResponse();
 
         albumResponse.setResponseMessage(responseMessage);
-        albumResponse.setId(albumId);
+        albumResponse.setAlbumDto(albumDto);
 
         return albumResponse;
     }

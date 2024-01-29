@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Getter @Setter
 public class PhotoResponse {
 
-    private Long id;
     private String responseMessage;
+    private PhotoDto photoDto;
 
 }
