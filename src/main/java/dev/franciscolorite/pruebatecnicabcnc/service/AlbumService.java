@@ -2,7 +2,7 @@ package dev.franciscolorite.pruebatecnicabcnc.service;
 
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 
 import java.util.List;
 

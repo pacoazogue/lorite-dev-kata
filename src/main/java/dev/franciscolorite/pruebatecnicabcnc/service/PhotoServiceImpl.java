@@ -4,7 +4,7 @@ import dev.franciscolorite.pruebatecnicabcnc.api.PhotoMapper;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
-import dev.franciscolorite.pruebatecnicabcnc.model.PhotoDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoDto;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

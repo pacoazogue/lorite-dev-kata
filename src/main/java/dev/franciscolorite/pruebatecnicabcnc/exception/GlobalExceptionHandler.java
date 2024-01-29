@@ -1,21 +1,30 @@
 package dev.franciscolorite.pruebatecnicabcnc.exception;
 
-import dev.franciscolorite.pruebatecnicabcnc.model.ErrorResponseDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler({PhotoNotFoundException.class, PhotoWithSameTitleException.class,
             AlbumNotFoundException.class, AlbumWithSameTitleException.class, Exception.class})
-    public final ResponseEntity<ErrorResponseDto> handleException(Exception exception) {
+    public final ResponseEntity<ErrorResponse> handleException(Exception exception) {
 
         LOGGER.error("Manejo de la excepción " + exception.getClass().getSimpleName() + ". Motivo: "
                 + exception.getMessage());
@@ -33,10 +42,27 @@ public class GlobalExceptionHandler {
         }
     }
 
-    private ResponseEntity<ErrorResponseDto> buildResponseEntity(HttpStatus httpStatus, Exception exception) {
+    private ResponseEntity<ErrorResponse> buildResponseEntity(HttpStatus httpStatus, Exception exception) {
 
-        ErrorResponseDto responseDto = new ErrorResponseDto(httpStatus.value(), exception.getMessage());
+        ErrorResponse responseDto = new ErrorResponse(httpStatus.value(), exception.getMessage());
         return new ResponseEntity<>(responseDto, httpStatus);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers, HttpStatusCode status,
+                                                                  WebRequest request) {
+
+        Map<String, String> errorList = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) ->{
+
+            String fieldName = ((FieldError) error).getField();
+            String message = error.getDefaultMessage();
+
+            errorList.put(fieldName, message);
+        });
+        return new ResponseEntity<>(errorList, HttpStatus.BAD_REQUEST);
     }
 
 

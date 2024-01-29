@@ -4,7 +4,7 @@ import dev.franciscolorite.pruebatecnicabcnc.api.AlbumMapper;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumRepository;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
 import org.springframework.data.domain.Page;

@@ -2,7 +2,7 @@ package dev.franciscolorite.pruebatecnicabcnc.service;
 
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoWithSameTitleException;
-import dev.franciscolorite.pruebatecnicabcnc.model.PhotoDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoDto;
 
 import java.util.List;
 

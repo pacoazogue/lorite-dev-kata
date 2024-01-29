@@ -1,11 +1,11 @@
 package dev.franciscolorite.pruebatecnicabcnc.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumResponse;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumResponse;
 import dev.franciscolorite.pruebatecnicabcnc.service.AlbumService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -42,7 +42,7 @@ public class AlbumController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AlbumResponse createAlbum(@RequestBody @NotNull AlbumDto albumDto) {
+    public AlbumResponse createAlbum(@RequestBody @NotNull @Valid AlbumDto albumDto) {
 
         AlbumDto albumDtoCreated = albumService.createAlbum(albumDto);
 

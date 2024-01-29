@@ -1,6 +1,6 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
