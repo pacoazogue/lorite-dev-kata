@@ -2,7 +2,7 @@ package dev.franciscolorite.pruebatecnicabcnc.service;
 
 import dev.franciscolorite.pruebatecnicabcnc.api.AlbumMapper;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.repository.*;
 import org.slf4j.Logger;

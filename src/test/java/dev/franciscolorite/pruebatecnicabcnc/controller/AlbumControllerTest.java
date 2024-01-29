@@ -1,7 +1,7 @@
 package dev.franciscolorite.pruebatecnicabcnc.controller;
 
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.service.AlbumService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,6 +125,68 @@ public class AlbumControllerTest {
                         .content(jsonRequest))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonResponse));
+    }
+
+    @Test
+    void givenBodyWithEmptyTitle_whenPostOperationIsDone_thenBadRequestIsObtained() throws Exception {
+
+        AlbumDto albumDtoRequest = albumDtoList.get(0);
+
+        when(albumService.createAlbum(any())).thenReturn(albumDtoRequest);
+
+        String jsonRequest = """
+                {
+                   "userId": 1,
+                   "title": ""
+                }
+                """;
+
+        mockMvc.perform(post("/bcncapp/api/albums")
+                        .contentType("application/json")
+                        .content(jsonRequest))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void givenBodyWithLargeTitle_whenPostOperationIsDone_thenBadRequestIsObtained() throws Exception {
+
+        AlbumDto albumDtoRequest = albumDtoList.get(0);
+
+        when(albumService.createAlbum(any())).thenReturn(albumDtoRequest);
+
+        String jsonRequest = """
+                {
+                   "userId": 1,
+                   "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                   bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+                   ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                }
+                """;
+
+        mockMvc.perform(post("/bcncapp/api/albums")
+                        .contentType("application/json")
+                        .content(jsonRequest))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void givenBodyWithEmptyUserId_whenPostOperationIsDone_thenBadRequestIsObtained() throws Exception {
+
+        AlbumDto albumDtoRequest = albumDtoList.get(0);
+
+        when(albumService.createAlbum(any())).thenReturn(albumDtoRequest);
+
+        String jsonRequest = """
+                {
+                   "userId": "",
+                   "title": "test"
+                }
+                """;
+
+        mockMvc.perform(post("/bcncapp/api/albums")
+                        .contentType("application/json")
+                        .content(jsonRequest))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

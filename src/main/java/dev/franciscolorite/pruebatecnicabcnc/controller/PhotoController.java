@@ -2,9 +2,10 @@ package dev.franciscolorite.pruebatecnicabcnc.controller;
 
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoWithSameTitleException;
-import dev.franciscolorite.pruebatecnicabcnc.model.PhotoDto;
-import dev.franciscolorite.pruebatecnicabcnc.model.PhotoResponse;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoResponse;
 import dev.franciscolorite.pruebatecnicabcnc.service.PhotoService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,7 @@ public class PhotoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PhotoResponse createPhoto(@RequestBody @NotNull PhotoDto photoDto) {
+    public PhotoResponse createPhoto(@RequestBody @NotNull @Valid PhotoDto photoDto) {
 
         PhotoDto photoDtoCreated = photoService.createPhoto(photoDto);
 
