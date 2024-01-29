@@ -1,6 +1,9 @@
 package dev.franciscolorite.pruebatecnicabcnc.repository;
 
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.*;
 
@@ -99,5 +102,15 @@ public class PhotoInMemoryRepository implements PhotoRepository {
     @Override
     public void deleteAll() {
         photosMap.clear();
+    }
+
+    @Override
+    public Iterable<Photo> findAll(Sort sort) {
+        return null;
+    }
+
+    @Override
+    public Page<Photo> findAll(Pageable pageable) {
+        return null;
     }
 }

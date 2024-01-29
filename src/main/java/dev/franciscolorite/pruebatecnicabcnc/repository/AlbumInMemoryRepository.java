@@ -1,6 +1,9 @@
 package dev.franciscolorite.pruebatecnicabcnc.repository;
 
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.HashMap;
 import java.util.List;
@@ -82,5 +85,15 @@ public class AlbumInMemoryRepository implements AlbumRepository {
     @Override
     public void deleteAll() {
         albumsMap.clear();;
+    }
+
+    @Override
+    public Iterable findAll(Sort sort) {
+        return null;
+    }
+
+    @Override
+    public Page findAll(Pageable pageable) {
+        return null;
     }
 }

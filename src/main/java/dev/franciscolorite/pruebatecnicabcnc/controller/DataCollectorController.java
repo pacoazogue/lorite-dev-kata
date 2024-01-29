@@ -21,7 +21,8 @@ public class DataCollectorController {
     }
 
     @Operation(
-            description = "Obtiene albums y photos de 2 endpoints de un servicio externo y los guarda en memoria H2",
+            description = "Obtiene datos pertenecientes a albums y photos a través de 2 endpoints de un " +
+                    "servicio externo (https://jsonplaceholder.typicode.com/) y los guarda en memoria H2",
             responses = {
                     @ApiResponse(
                             description = "Sucess",
@@ -36,10 +37,19 @@ public class DataCollectorController {
 
     }
 
+    @Operation(
+            description = "Obtiene datos pertenecientes a albums y photos a través de 2 endpoints de un " +
+                    "servicio externo (https://jsonplaceholder.typicode.com/) y los guarda en memoria",
+            responses = {
+                    @ApiResponse(
+                            description = "Sucess",
+                            responseCode = "200"
+                    )
+            }
+    )
     @GetMapping("/loadDataIntoMemory")
     public List<AlbumDto> loadDataFromJsonPlaceHolderServerIntoMemory() {
         return dataCollectorService.loadDataFromJsonPlaceHolderServerAndSaveIntoMemory();
-
     }
 
 
