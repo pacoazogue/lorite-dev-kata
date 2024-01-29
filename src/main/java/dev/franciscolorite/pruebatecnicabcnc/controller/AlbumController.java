@@ -51,7 +51,7 @@ public class AlbumController {
 
     @PutMapping("/{albumId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public AlbumResponse updateAlbum(@RequestBody @NotNull AlbumDto albumDto, @PathVariable Long albumId) {
+    public AlbumResponse updateAlbum(@RequestBody @NotNull @Valid AlbumDto albumDto, @PathVariable Long albumId) {
 
         AlbumDto albumDtoFromUpdate = albumService.updateAlbum(albumId, albumDto);
 
