@@ -5,8 +5,12 @@ import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
 import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumRepository;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,9 +31,18 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public List<AlbumDto> findAll() {
+    public List<AlbumDto> findAll(Integer page, Integer size) {
 
-        List<Album> albumsList = albumRepository.findAll();
+        List<Album> albumsList;
+
+        if (size != 0) {
+            Pageable pageable = PageRequest.of(page, size);
+
+            Page<Album> pageAlbumList = albumRepository.findAll(pageable);
+            albumsList = pageAlbumList.getContent();
+        } else {
+            albumsList = albumRepository.findAll();
+        }
 
         return albumsList.stream()
                 .map(albumMapper::entityToDto)

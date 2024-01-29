@@ -6,6 +6,9 @@ import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoWithSameTitleExcepti
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.model.PhotoDto;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,10 +27,25 @@ public class PhotoServiceImpl implements PhotoService {
         this.photoMapper = photoMapper;
     }
 
+    /**
+     *
+     * @param page Teniendo en cuenta el tamaño de página (Página X del total donde mostrar datos)
+     * @param size Tamaño de la página (Nº de registros a mostrar)
+     * @return
+     */
     @Override
-    public List<PhotoDto> findAll() {
+    public List<PhotoDto> findAll(Integer page, Integer size) {
 
-        List<Photo> photoList = photoRepository.findAll();
+        List<Photo> photoList;
+
+        if (size != 0) {
+            Pageable pageable = PageRequest.of(page, size);
+
+            Page<Photo> pagePhotoList = photoRepository.findAll(pageable);
+            photoList = pagePhotoList.getContent();
+        } else {
+            photoList = photoRepository.findAll();
+        }
 
         return photoList.stream()
                 .map(photoMapper::entityToDto)

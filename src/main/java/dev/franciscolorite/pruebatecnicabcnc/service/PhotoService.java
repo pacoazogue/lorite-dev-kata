@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface PhotoService {
 
-    List<PhotoDto> findAll();
+    List<PhotoDto> findAll(Integer page, Integer size);
 
     PhotoDto findById(Long photoId) throws PhotoNotFoundException;
 

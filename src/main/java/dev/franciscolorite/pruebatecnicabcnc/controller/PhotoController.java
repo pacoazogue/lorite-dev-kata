@@ -28,8 +28,10 @@ public class PhotoController {
     }
 
     @GetMapping("")
-    public List<PhotoDto> findAll() {
-        return photoService.findAll();
+    public List<PhotoDto> findAll(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "0") int size) {
+
+        return photoService.findAll(page, size);
     }
 
     @GetMapping("/{photoId}")

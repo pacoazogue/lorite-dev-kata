@@ -66,10 +66,7 @@ public class DataCollectorServiceImpl implements DataCollectorService {
         return ResponseEntity.ok(LOAD_DATA_FROM_JSONPLACEHOLDER_SERVER_SUCCESS_MESSAGE);
     }
 
-    /*
-     * Devuelve el catálogo completo que incluye los albums con las fotografías pertenecientes a los mismos
-     * @return
-     */
+
     @Override
     public List<AlbumDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory() {
 

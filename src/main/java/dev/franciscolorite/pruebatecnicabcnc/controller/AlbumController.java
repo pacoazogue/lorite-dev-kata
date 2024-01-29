@@ -27,8 +27,9 @@ public class AlbumController {
     }
 
     @GetMapping("")
-    public List<AlbumDto> findAll() {
-        return albumService.findAll();
+    public List<AlbumDto> findAll(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "0") int size) {
+        return albumService.findAll(page, size);
     }
 
     @GetMapping("/{albumId}")
