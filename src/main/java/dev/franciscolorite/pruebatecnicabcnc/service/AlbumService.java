@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AlbumService {
 
-    List<AlbumDto> findAll(Integer page, Integer size);
+    List<AlbumDto> findAll(Integer page, Integer size, Boolean includePhotos);
     AlbumDto findById(Long albumId) throws AlbumNotFoundException;
     AlbumDto createAlbum(AlbumDto albumDto);
     void delete(Long albumId);

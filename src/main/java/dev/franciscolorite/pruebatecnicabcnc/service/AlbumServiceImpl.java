@@ -31,8 +31,9 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public List<AlbumDto> findAll(Integer page, Integer size) {
+    public List<AlbumDto> findAll(Integer page, Integer size, Boolean includePhotos) {
 
+        List<AlbumDto> result;
         List<Album> albumsList;
 
         if (size != 0) {
@@ -44,9 +45,19 @@ public class AlbumServiceImpl implements AlbumService {
             albumsList = albumRepository.findAll();
         }
 
-        return albumsList.stream()
+        result = albumsList.stream()
                 .map(albumMapper::entityToDto)
                 .collect(Collectors.toList());
+
+        if (includePhotos) {
+
+            return result.stream().map(albumDto -> {
+                albumDto.setPhotoList(photoRepository.findByAlbumId(albumDto.getId()));
+                return albumDto;
+            }).collect(Collectors.toList());
+        }
+        
+        return result;
     }
 
     @Override
