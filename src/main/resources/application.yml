@@ -12,7 +12,7 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        generate_statistics: true
+        generate_statistics: false
         order_inserts: true
         order_updates: true
         jdbc:

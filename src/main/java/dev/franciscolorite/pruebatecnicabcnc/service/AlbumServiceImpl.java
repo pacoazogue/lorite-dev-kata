@@ -4,6 +4,7 @@ import dev.franciscolorite.pruebatecnicabcnc.api.AlbumMapper;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
+import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumRepository;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
@@ -131,5 +132,28 @@ public class AlbumServiceImpl implements AlbumService {
         } else {
             throw new AlbumNotFoundException(albumId);
         }
+    }
+
+    @Override
+    public AlbumDto unlinkPhotosFromAlbum(Long albumId) throws AlbumNotFoundException {
+
+        Optional<Album> albumOpt = albumRepository.findById(albumId);
+
+        if (albumOpt.isEmpty()) {
+            throw new AlbumNotFoundException(albumId);
+        } else {
+
+            // Desvincular el album de las photos
+            List<Photo> photoList = photoRepository.findByAlbumId(albumId).stream().map(photo -> {photo.setAlbumId(null);
+                return photo;
+            }).toList();
+
+            photoRepository.saveAll(photoList);
+        }
+
+        AlbumDto albumDto = albumMapper.entityToDto(albumOpt.get());
+        albumDto.setPhotoList(null);
+
+        return albumDto;
     }
 }
