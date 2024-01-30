@@ -7,7 +7,7 @@ import lombok.ToString;
 
 @Getter @Setter @ToString
 @Entity
-public class Photo {
+public class Photo implements Comparable<Photo> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -34,6 +34,15 @@ public class Photo {
         this.thumbnailUrl = thumbnailUrl;
     }
 
+    /**
+     * Creado para comparativa de eficiencia de estructuras de datos (Uso de TreeSet)
+     * @param photo the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(Photo photo) {
+        return Integer.compare(Math.toIntExact(getId()), Math.toIntExact(photo.getId()));
+    }
 }
 
 
