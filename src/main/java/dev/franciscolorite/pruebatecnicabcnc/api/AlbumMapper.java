@@ -1,8 +1,7 @@
 package dev.franciscolorite.pruebatecnicabcnc.api;
 
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
-import dev.franciscolorite.pruebatecnicabcnc.model.PhotoDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 

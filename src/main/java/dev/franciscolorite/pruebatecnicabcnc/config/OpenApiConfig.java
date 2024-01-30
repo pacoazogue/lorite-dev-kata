@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         name = "Francisco José Lorite Fernández",
                         email = "pacolori@gmail.com"
                 ),
-                description = "Documentación generada con OpenApi para la prueba técnica de la compañía BCNC",
+                description = "Documentación generada con OpenApi - Prueba técnica BCNC",
                 title = "API de la aplicación BCNC - Lorite",
                 version = "1.0"
         ),

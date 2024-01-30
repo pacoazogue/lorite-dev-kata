@@ -1,7 +1,8 @@
 package dev.franciscolorite.pruebatecnicabcnc.controller;
 
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoNotFoundException;
-import dev.franciscolorite.pruebatecnicabcnc.model.PhotoDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoDto;
 import dev.franciscolorite.pruebatecnicabcnc.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -135,6 +136,30 @@ public class PhotoControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonResponse));
     }
+
+
+    @Test
+    void givenBodyWithEmptyTitle_whenPostOperationIsDone_thenBadRequestIsObtained() throws Exception {
+
+        PhotoDto photoDtoRequest = photoDtoList.get(0);
+
+        when(photoService.createPhoto(any())).thenReturn(photoDtoRequest);
+
+        String jsonRequest = """
+                {
+                   "albumId": 1,
+                   "title": "",
+                   "url": "urlFake",
+                   "thumbnailUrl": "thumbnailUrlFake"
+                }
+                """;
+
+        mockMvc.perform(post("/bcncapp/api/photos")
+                        .contentType("application/json")
+                        .content(jsonRequest))
+                .andExpect(status().isBadRequest());
+    }
+
 
     @Test
     void putOperationTest() throws Exception {

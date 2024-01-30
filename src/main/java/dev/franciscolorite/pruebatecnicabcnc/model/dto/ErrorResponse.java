@@ -1,11 +1,11 @@
-package dev.franciscolorite.pruebatecnicabcnc.model;
+package dev.franciscolorite.pruebatecnicabcnc.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ErrorResponseDto  {
+public class ErrorResponse {
 
     private final Integer errorCode;
     private final String errorMessage;

@@ -2,11 +2,13 @@ package dev.franciscolorite.pruebatecnicabcnc.service;
 
 import dev.franciscolorite.pruebatecnicabcnc.api.AlbumMapper;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
-import dev.franciscolorite.pruebatecnicabcnc.model.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.DataCollectorH2Response;
 import dev.franciscolorite.pruebatecnicabcnc.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -16,6 +18,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,64 +28,106 @@ public class DataCollectorServiceImpl implements DataCollectorService {
 
     private PhotoRepository photoRepository;
     private AlbumRepository albumRepository;
+
     private final AlbumMapper albumMapper;
+
+    private List<Photo> photosFromJsonPlaceHolderServiceList;
+    private List<Album> albumsFromJsonPlaceHolderServiceList;
 
 
     public DataCollectorServiceImpl(PhotoRepository photoRepository, AlbumRepository albumRepository, AlbumMapper albumMapper) {
         this.photoRepository = photoRepository;
         this.albumRepository = albumRepository;
         this.albumMapper = albumMapper;
+
+        photosFromJsonPlaceHolderServiceList = new ArrayList<>();
+        albumsFromJsonPlaceHolderServiceList = new ArrayList<>();
     }
 
     @Override
-    public ResponseEntity<?> loadDataFromJsonPlaceHolderServerAndSaveIntoH2Memory() {
+    public DataCollectorH2Response loadDataFromJsonPlaceHolderServerAndSaveIntoH2Memory() {
 
-        JsonPlaceHolderService jsonPlaceHolderService = buildJsonPlaceHolderService();
+        getAppDataFromJsonPlaceHolderServer();
 
-        logger.info("Obtención de albums consumiendo el end-point https://jsonplaceholder.typicode.com/albums ");
+        logger.info("Almacenamiento de albums en memoria H2");
+        storeAlbumsDataInMemory();
 
-        logger.info("Almacenamiento de datos obtenidos en memoria H2");
-        List<Album> albumsList = jsonPlaceHolderService.loadAlbums();
-        List<Photo> photoList = jsonPlaceHolderService.loadPhotos();
+        logger.info("Almacenamiento de fotos en memoria H2");
+        storePhotosDataInMemory();
 
-        logger.info("Almacenamiento de albums");
-        Instant start = Instant.now();
-        albumRepository.saveAll(albumsList);
-        Instant finish = Instant.now();
+        DataCollectorH2Response dataCollectorH2Response = new DataCollectorH2Response();
+        dataCollectorH2Response.setResponseMessage(LOAD_DATA_FROM_JSONPLACEHOLDER_SERVER_SUCCESS_MESSAGE);
+        dataCollectorH2Response.setPhotosMessage("Fotos almacenadas en memoria H2: " + photosFromJsonPlaceHolderServiceList.size());
+        dataCollectorH2Response.setAlbumsMessage("Albums almacenados en memoria H2: " + albumsFromJsonPlaceHolderServiceList.size());
 
-        long timeElapsed = Duration.between(start, finish).toMillis();
-
-        logger.info("Tiempo consumido: " + timeElapsed);
-
-        logger.info("Almacenamiento de fotos");
-        start = Instant.now();
-        photoRepository.saveAll(photoList);
-        finish = Instant.now();
-        timeElapsed = Duration.between(start, finish).toMillis();
-
-        logger.info("Tiempo consumido: " + timeElapsed);
-
-        return ResponseEntity.ok(LOAD_DATA_FROM_JSONPLACEHOLDER_SERVER_SUCCESS_MESSAGE);
+        return dataCollectorH2Response;
     }
-
 
     @Override
     public List<AlbumDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory() {
 
+        getAppDataFromJsonPlaceHolderServer();
+
+        logger.info("Almacenamiento de fotos en memoria");
+        photoRepository = new PhotoInMemoryRepository();
+        storePhotosDataInMemory();
+
+        logger.info("Almacenamiento de albums en memoria");
+        albumRepository = new AlbumInMemoryRepository();
+        storeAlbumsDataInMemory();
+
+        return albumsFromJsonPlaceHolderServiceList.stream().map(this::buildAlbumDtoCompleteInformation).toList();
+    }
+
+    /*
+     * Obtiene datos de "photos" y "albums" del servidor JsonPlaceHolder a través de interfaz HTTP client
+     */
+    private void getAppDataFromJsonPlaceHolderServer() {
+
         JsonPlaceHolderService jsonPlaceHolderService = buildJsonPlaceHolderService();
 
-        List<Photo> photoList = jsonPlaceHolderService.loadPhotos();
-        List<Album> albumsList = jsonPlaceHolderService.loadAlbums();
+        logger.info("Obtención de albums consumiendo el end-point https://jsonplaceholder.typicode.com/albums");
+        albumsFromJsonPlaceHolderServiceList = jsonPlaceHolderService.loadAlbums();
 
-        photoRepository = new PhotoInMemoryRepository();
-        albumRepository = new AlbumInMemoryRepository();
-
-        photoRepository.saveAll(photoList);
-
-        List<Album> albumList = albumRepository.saveAll(albumsList);
-
-        return albumList.stream().map(this::buildAlbumDtoCompleteInformation).toList();
+        logger.info("Obtención de photos consumiendo el end-point https://jsonplaceholder.typicode.com/photos");
+        photosFromJsonPlaceHolderServiceList = jsonPlaceHolderService.loadPhotos();
     }
+
+    /*
+     * Almacenamiento en memoria de los albums (El repositorio a través de polimorfismo (Siguiendo Strategy pattern)
+     * condiciona el tipo de memoria donde se almacena)
+     */
+    private void storeAlbumsDataInMemory() {
+
+        Instant start = Instant.now();
+
+        albumRepository.saveAll(albumsFromJsonPlaceHolderServiceList);
+
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
+
+        logger.info("Albums almacenados: " + albumsFromJsonPlaceHolderServiceList.size());
+        logger.info("Tiempo consumido: " + timeElapsed + " ms");
+    }
+
+    /*
+     * Almacenamiento en memoria de las photos (El repositorio a través de polimorfismo (Siguiendo Strategy pattern)
+     * condiciona el tipo de memoria donde se almacena)
+     */
+    private void storePhotosDataInMemory() {
+
+        Instant start = Instant.now();
+
+        photoRepository.saveAll(photosFromJsonPlaceHolderServiceList);
+
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
+
+        logger.info("Fotos almacenadas: " + photosFromJsonPlaceHolderServiceList.size());
+        logger.info("Tiempo consumido: " + timeElapsed + " ms");
+    }
+
+
 
     /*
      * Los albums (Entidades) son mapeados a su correspondiente DTO y se relacionan las fotos con los álbums a los
