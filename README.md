@@ -72,7 +72,8 @@ Se asume el siguiente escenario funcional:
 
 ## 4. Funcionalidades implementadas
 
-Aparte de las funcionalidades básicas exigidas, se han implementado las siguientes funcionalidades:
+Aparte de la funcionalidad especificada en el enunciado de la prueba, se ha decidido implementar una *API REST* que contenga
+operaciones *CRUD* adicionales.
 
 ### 4.1 Carga de datos
 - Carga de datos en base de datos en memoria H2 via endpoint
@@ -106,10 +107,10 @@ Aparte de las funcionalidades básicas exigidas, se han implementado las siguien
 
 ### 4.3 Sin el uso de base de datos
 
-En este punto solo se exigía la devolución de los datos insertados en el propio end-point de carga.
-Sin embargo, se ha decidido implementar todas las funcionalidades mostradas para mostrar la versatilidad del sistema (Se detallará más adelante).
+En este punto solo se exigía la devolución de los datos insertados en el propio end-point de carga de datos *(petición GET(/bcncapp/api/loadDataIntoMemory)*.
+Sin embargo, se ha decidido implementar todas operaciones CRUD que están disponibles en la versión que interactúa con una base de datos H2  para mostrar la versatilidad del sistema.
 
-Este punto ha supuesto bastante más trabajo por la dificultad que implicaba conseguir el propósito a través de una solución elegante (Uso de eventos spring, selección de repositos en tiempo de ejecución, etc...)
+Este punto ha supuesto bastante más trabajo por la dificultad que implicaba conseguir el propósito a través de una solución elegante (Uso de eventos de spring, selección de repositorio en tiempo de ejecución, etc...)
 
 - **Photos**
   - Obtener todas las fotografías (GET)
@@ -138,10 +139,10 @@ Este punto ha supuesto bastante más trabajo por la dificultad que implicaba con
 
 En base al escenario funcional descrito en la sección 2, en las funcionalidades implementadas se persigue:
 
-1. Rapidez a la hora de encontrar un album o foto en particular
-2. Rapidez a la hora de borrar un album o foto en particular
-3. Rapidez a la hora de insertar un album o foto en particular
-4. Obtener listado de fotografías o albums bajo diferentes criterios
+- Rapidez a la hora de encontrar un album o foto en particular
+- Rapidez a la hora de borrar un album o foto en particular
+- Rapidez a la hora de insertar un album o foto en particular
+- Versatilidad a la hora de obtener listado de fotografías o albums bajo diferentes criterios
 
 ## 5.Arquitectura
 
@@ -154,7 +155,7 @@ La primera decisión a abordar tras la creación del proyecto es cómo modulariz
 3. Uso de arquitectura hexagonal
 4. [Spring Modulith](https://spring.io/projects/spring-modulith)
 
-Un dicho recurrente en la informática es que "no existe la bala de plata", es decir, se debe hacer uso del diseño, arquitectura, componentes que más se ajuste a las necesidades del problema.
+Un dicho recurrente en la informática es que "no existe una bala de plata", es decir, se debe hacer uso del diseño, arquitectura, componentes que más se ajuste a las necesidades del problema.
 
 De las opciones a considerar, teniendo en cuenta la dimensión del ejercicio, voy a contrastar el uso de las opciones 1 y 2.
 
@@ -416,21 +417,21 @@ La motivación es clara, de no ser gestionado así, en cada método de las clase
 crearse un método para gestionar la excepción con la anotación @ExceptionHandler.
 
 Varios controladores pueden producir la misma excepción, por lo cual estaríamos repitiendo código de gestión de error. Además, esta
-enfoque de gestión de excepciones presenta un código más claro y conciso. Desde un mismo punto visibilizamos y gestionamos las excepciones.
+enfoque de gestión de excepciones presenta un código más claro y conciso. Desde un mismo punto, visibilizamos y gestionamos las excepciones.
 
 Para tratar los errores provocados por la validación de ciertos campos, se sobreescribe el método
 handleMethodArgumentNotValid() heredado de la clase padre ResponseEntityExceptionHandler.
 
-### 5.4 Decisiones relativas a Spring
+### 5.4 Decisiones "relativas" al ecosistema Spring
 
-- Inyección de dependencias por campo VS inyección de dependencias por constructor
+- **Inyección de dependencias por campo VS inyección de dependencias por constructor**
 
 Por lo general, se recomienda inyectar dependencias a través del constructor, pero no debe de ser un dogma. En determinadas
 ocasiones la inyección por campo es adecuada (Imaginemos una clase que tuviera 10 dependencias y todas las hacemos via constructor, eso huele mal).
 
 Se ha adoptado un enfoque mixto dependiendo de las circunstancias
 
-- Posibilidad de establecer en tiempo de ejecución el repositorio usado en función de si la carga de datos se ha hecho en base de datos H2 o no
+- **Posibilidad de establecer en tiempo de ejecución el repositorio usado en función de si la carga de datos se ha hecho en base de datos H2 o no** (Uso de Beans)
 
 En el ejercicio se pedía que en el caso de la carga de datos sin base de datos, en la propia petición se devuelvan los mismos. Sin embargo, he decidido ir un poco más allá y permitir que todas las operaciones CRUD implementadas también operen tras esta carga inicial.
 
@@ -443,7 +444,7 @@ obtenían datos ya que se apuntaba por defecto al repositorio "relativo a H2" (S
 
 Se me ha ocurrido una solución para esto:
 - Uso de eventos de Spring
-- Creación de un componente "que recuerda que tipo de carga se ha hecho"
+- Creación de un componente "que recuerda que tipo de carga se ha hecho (almacenando sus repositorios)"
 
 1. Cuando se realiza una carga de datos sin usar base de datos, en la clase `DataCollectorServiceImpl` el componente`RepositoriesSelector`
 recoge los repositorios usados bajo esa estrategia.
@@ -493,7 +494,7 @@ Para describir las operaciones expuestas en el microservicio en este caso he opt
 
 En cuanto al código que se ajusta a los principios **SOLID** (Se debe recordar que no son en sí un dogma, sino una solución ante la aparición de code smells), algunos se han citado en el documentación aunque podemos recapitularlos en este punto.
 
-1. Principio de responsabilidad única (SRP)
+1. **Principio de responsabilidad única (SRP)**
 
 Podríamos decir que nuestro sistema cumple este principio ya se ha intentado realizar una delimitación clara de responsabilidades:
 
@@ -501,7 +502,7 @@ Podríamos decir que nuestro sistema cumple este principio ya se ha intentado re
 - Capa de servicios: Tiene la responsabilidad de gestionar la lógica de negocio (Mapeamos entidades a dto y viceversa, paginación, etc..)
 - Capa de persistencia: Las clases de persistencia se dedican únicamente a interactuar con la base de datos (En el caso que se usen) y entidades
 
-2. Principio abierto-cerrado (OCP)
+2. **Principio abierto-cerrado (OCP)**
 
 Este principio lo podemos ver a través del patrón estrategia que hemos implementado.
 
@@ -511,15 +512,15 @@ Lo que tendríamos que hacer en este caso es crear una implementación de la int
 va a estar cerrado ya que la capa de servicio se abstrae totalmente de estas opciones y está abierto porque se permiten nuevas
 implementaciones (Base de datos en este caso).
 
-3. Principio de sustitución de Liskov (LSP)
+3. **Principio de sustitución de Liskov (LSP)**
 
 Este principio está presente en las clases `AlbumDto y AlbumWithPhotoDto`.
 
 El método `findAll` de la clase `AlbumServiceImpl` se adapta sin problema al uso de la clase padre (AlbumDto) o la clase hija (AlbumWithPhotoDto).
 
-4. Principio de segregación de la interfaz (ISP)
+4. **Principio de segregación de la interfaz (ISP)**
 
-5. Principio de inversión de dependencias
+5. **Principio de inversión de dependencias (DIPp**
 
 Mencionado en el apartado de "5.2 Patrones de diseño utilizados"
 
@@ -625,7 +626,7 @@ return new RestTemplate();
 El segundo paso sería insertar estos datos en nuestra base de H2. Este código funciona perfectamente y no hay pegas al respecto, pero estamos necesitando:
 
 - Declarar en la clase servicio este baile con el httpcliente usando exchange y tener que averiguar
-  qué parametros y método elegir etc, etc.. En la API hay un montón de métodos override, hay que saber
+  qué parÁmetros y método elegir. Además, en la API existen numerosos de métodos override, hay que saber
   cuál usar, etc...
 
 Esto lo podemos solucionar con *HTTP Interfaces*. Spring Framework no permite utilizar HTTPService como una interfaz Java
@@ -940,7 +941,7 @@ La documentación ya existente describe el desarrollo (Y las funcionalidades ext
 
 ### 6.6 Mejoras: feature/BCNC-004-mejoras
 
-En esta rama se han añadido/desarrollado:
+En esta rama se han añadido/desarrollado una serie de mejoras, entre ellas:
 
 - Una serie de mejoras asociadas a la validación de los campos introducidos en las peticiones POST
   - Photos
@@ -948,8 +949,6 @@ En esta rama se han añadido/desarrollado:
     - Se valida que los campos **url** y **thumbnailUrl** no superen los 255 caracteres.
   - Albums
     - Se valida que el campo **titulo** se informe a la hora de realizar una operación POST o PUT, que no esté vacío y que no conteng más de 255 caracteres (Se asume que estamos cómodo con un VARCHAR(255))
-
-
 
 
 ## 7.Documentación de la API
