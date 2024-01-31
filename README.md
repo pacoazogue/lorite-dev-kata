@@ -988,12 +988,12 @@ Se ha hecho uso de la herramienta **Postman** para el testing de los servicios.
 El archivo que contiene el conjunto de pruebas, clasificadas por controlador y funcionalidad, está disponible
 en los resources del proyecto: */resources/postman/BCNC API.postman_collection.json*
 
-## 8.3 Cobertura de código
+### 8.3 Cobertura de código
 
 Para analizar la cobertura de código se ha usado la herramienta de Intellij 'Run tests with coverage'.
 
 ![Coverage](./src/main/resources/images/coverage.png)
 
-## 8.4 Calidad de código
+### 8.4 Calidad de código
 
 La calidad del código se ha ido vigilando también a través de las herramientas ofrecidas por Intellij.
