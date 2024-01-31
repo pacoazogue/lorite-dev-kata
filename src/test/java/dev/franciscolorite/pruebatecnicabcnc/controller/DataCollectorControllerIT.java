@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.franciscolorite.pruebatecnicabcnc.BcncApplication;
-import dev.franciscolorite.pruebatecnicabcnc.service.DataCollectorService;
 import jakarta.servlet.ServletContext;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +21,10 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { BcncApplication.class })
@@ -54,7 +53,7 @@ class DataCollectorControllerIT {
         ServletContext servletContext = webApplicationContext.getServletContext();
 
         assertNotNull(servletContext);
-        assertTrue(servletContext instanceof MockServletContext);
+        assertInstanceOf(MockServletContext.class, servletContext);
         assertNotNull(webApplicationContext.getBean("dataCollectorController"));
     }
 
@@ -73,16 +72,38 @@ class DataCollectorControllerIT {
         this.mockMvc
                 .perform(get("/bcncapp/api/loadDataIntoMemory"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json.toPrettyString()));
+                .andExpect(content().json(json.toPrettyString()))
+                .andDo(
+                        result -> mockMvc.perform(get("/bcncapp/api/photos"))
+                                .andExpect(status().isOk()).andExpect(jsonPath("$.length()", Matchers.is(5000))))
+                .andDo(
+                        result -> mockMvc.perform(get("/bcncapp/api/albums"))
+                                .andExpect(status().isOk()).andExpect(jsonPath("$.length()", Matchers.is(100))));;
+
     }
 
     @Test
     public void loadDataFromJsonPlaceHolderServerIntoH2MemoryIntegrationTest() throws Exception {
 
+        String jsonResponse = """
+            {
+                "responseMessage": "Registros de albums y fotos importados desde servidor externo y almacenados en base de datos H2 correctamente",
+                "albumsMessage": "Albums almacenados en memoria H2: 100",
+                "photosMessage": "Fotos almacenadas en memoria H2: 5000"
+            }
+                """;
+
+
         this.mockMvc
                 .perform(get("/bcncapp/api/loadDataIntoH2Memory"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(DataCollectorService.LOAD_DATA_FROM_JSONPLACEHOLDER_SERVER_SUCCESS_MESSAGE));
+                .andExpect(content().json(jsonResponse))
+                .andDo(
+                        result -> mockMvc.perform(get("/bcncapp/api/photos"))
+                                .andExpect(status().isOk()).andExpect(jsonPath("$.length()", Matchers.is(5000))))
+                .andDo(
+                        result -> mockMvc.perform(get("/bcncapp/api/albums"))
+                                .andExpect(status().isOk()).andExpect(jsonPath("$.length()", Matchers.is(100))));;;
 
     }
 }

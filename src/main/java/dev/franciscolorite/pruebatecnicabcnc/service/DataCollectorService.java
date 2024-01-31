@@ -1,8 +1,7 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
-import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
-import dev.franciscolorite.pruebatecnicabcnc.model.dto.DataCollectorH2Response;
-import org.springframework.http.ResponseEntity;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumWithPhotosDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.responses.DataCollectorH2Response;
 
 import java.util.List;
 
@@ -12,5 +11,5 @@ public interface DataCollectorService {
             " externo y almacenados en base de datos H2 correctamente";
 
     DataCollectorH2Response loadDataFromJsonPlaceHolderServerAndSaveIntoH2Memory();
-    List<AlbumDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory();
+    List<AlbumWithPhotosDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory();
 }

@@ -3,7 +3,8 @@ package dev.franciscolorite.pruebatecnicabcnc.controller;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
-import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumResponse;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumWithPhotosDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.responses.AlbumResponse;
 import dev.franciscolorite.pruebatecnicabcnc.service.AlbumService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -42,9 +43,9 @@ public class AlbumController {
             }
     )
     @GetMapping("")
-    public List<AlbumDto> findAll(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "0") int size,
-                                  @RequestParam(required = false, defaultValue = "false") boolean includePhotos) {
+    public List<? extends AlbumDto> findAll(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "0") int size,
+                                            @RequestParam(required = false, defaultValue = "false") boolean includePhotos) {
         return albumService.findAll(page, size, includePhotos);
     }
 
@@ -62,7 +63,7 @@ public class AlbumController {
             }
     )
     @GetMapping("/{albumId}")
-    public AlbumDto findByAlbumId(@PathVariable Long albumId) throws AlbumNotFoundException {
+    public AlbumWithPhotosDto findByAlbumId(@PathVariable Long albumId) throws AlbumNotFoundException {
         return albumService.findById(albumId);
     }
 
@@ -190,4 +191,5 @@ public class AlbumController {
 
         return albumResponse;
     }
+
 }

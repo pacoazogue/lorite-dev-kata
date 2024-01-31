@@ -66,7 +66,8 @@ public class PhotoInMemoryRepository implements PhotoRepository {
 
     @Override
     public List<Photo> findAll() {
-        return (List<Photo>) photosMap.values();
+
+        return photosMap.values().stream().toList();
     }
 
     @Override
@@ -113,4 +114,5 @@ public class PhotoInMemoryRepository implements PhotoRepository {
     public Page<Photo> findAll(Pageable pageable) {
         return null;
     }
+
 }

@@ -2,6 +2,7 @@ package dev.franciscolorite.pruebatecnicabcnc.controller;
 
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumWithPhotosDto;
 import dev.franciscolorite.pruebatecnicabcnc.service.AlbumService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AlbumControllerTest {
 
     List<AlbumDto> albumDtoList = new ArrayList<>();
+
 
     @Autowired
     MockMvc mockMvc;
@@ -60,7 +62,8 @@ public class AlbumControllerTest {
                 ]
                 """;
 
-        when(albumService.findAll(0,0, false)).thenReturn(albumDtoList);
+        doReturn(albumDtoList).when(albumService).findAll(0,0, false);
+
         mockMvc.perform(get("/bcncapp/api/albums"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonResponse));
@@ -69,15 +72,18 @@ public class AlbumControllerTest {
     @Test
     void findByIdOperationTest() throws Exception {
 
-        AlbumDto albumDto = albumDtoList.get(0);
 
-        when(albumService.findById(1L)).thenReturn(albumDto);
+        AlbumDto albumDto = albumDtoList.get(0);
+        AlbumWithPhotosDto albumWithPhotosDto = new AlbumWithPhotosDto(albumDto);
+
+        when(albumService.findById(1L)).thenReturn(albumWithPhotosDto);
 
         String jsonResponse = """
                     {
                         "id": 1,
                         "title": "Album testing",
-                        "userId": "1"
+                        "userId": "1",
+                         "photosLinkedToAlbumList": []
                     }
                 """;
 
@@ -114,8 +120,7 @@ public class AlbumControllerTest {
                        "albumDto": {
                            "id": 1,
                            "title": "Album testing",
-                           "userId": "1",
-                           "photoList": null
+                           "userId": "1"
                        }
                    }
                 """;
@@ -209,8 +214,7 @@ public class AlbumControllerTest {
                        "albumDto": {
                            "id": 1,
                            "title": "Album testing Changed",
-                           "userId": "1",
-                           "photoList": null
+                           "userId": "1"
                        }
                    }
                 """;
@@ -226,10 +230,10 @@ public class AlbumControllerTest {
     void patchOperationTest() throws Exception {
 
         String jsonResponse = """
-                   {
-                       "responseMessage": "El título del album ha sido actualizado correctamente",
-                       "albumDto": null
-                   }
+                {
+                  "responseMessage": "El título del album ha sido actualizado correctamente",
+                  "albumDto": null
+                }
                 """;
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

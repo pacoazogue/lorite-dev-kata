@@ -17,6 +17,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -69,6 +70,7 @@ class PhotoControllerIT {
                         result -> mockMvc.perform(get("/bcncapp/api/photos/1")).andExpect(status().isOk()));
     }
 
+
     /**
      * Test de integración
      * 1. Se borra la foto cuyo id es 1
@@ -83,5 +85,57 @@ class PhotoControllerIT {
                 .andDo(result ->
                         mockMvc.perform(get("/bcncapp/api/photos/1").contentType("application/json"))
                         .andExpect(status().isNotFound()));
+    }
+
+    /**
+     * Test de integración
+     * 1. Se crea una foto via POST
+     * 2. Se modifica la fotografia via PUT
+     *
+     * @throws Exception
+     */
+    @Test
+    public void givenPhotoCreated_whenPhotoIsModifiedViaPut_thenPhotoInformationIsUpdated() throws Exception {
+
+        String jsonPhotoCreationRequest = """
+               {
+                   "albumId": 1,
+                   "title": "Foto testing",
+                   "url": "urlFake",
+                   "thumbnailUrl": "thumbnailUrlFake"
+                }
+                """;
+        String jsonPhotoModificationRequest = """
+               {
+                   "albumId": 2,
+                   "title": "Foto testing cambiada",
+                   "url": "urlFakecambiada",
+                   "thumbnailUrl": "thumbnailUrlFakecambiada"
+                }
+                """;
+
+        String jsonResponse = """
+                {
+                    "responseMessage": "La fotografía se ha actualizado correctamente",
+                    "photoDto": {
+                        "id": 1,
+                        "albumId": "2",
+                        "title": "Foto testing cambiada",
+                        "url": "urlFakecambiada",
+                         "thumbnailUrl": "thumbnailUrlFakecambiada"
+                    }
+                }
+                """;
+
+        mockMvc.perform(post("/bcncapp/api/photos")
+                        .contentType("application/json")
+                        .content(jsonPhotoCreationRequest)
+                ).andExpect(status().isCreated())
+                .andDo(
+                        result -> mockMvc.perform(put("/bcncapp/api/photos/1")
+                                .contentType("application/json")
+                                .content(jsonPhotoModificationRequest))
+                                .andExpect(status().isCreated())
+                                .andExpect(content().json(jsonResponse)));
     }
 }
