@@ -5,10 +5,10 @@
 Este repositorio responde a la funcionalidad solicitada en la prueba técnica de la compañía **BCNC**:
 
 >Realizar un microservicio en SpringBoot que tenga 3 endpoints:
->1. ejecute un algoritmo que enriquezca unos datos obtenidos a través de un API (2 endpoints), para posteriormente 
->guardarlos en una base de datos en memoria H2.
->2. ejecute un algoritmo que enriquezca unos datos obtenidos a través de un API (2 endpoints) sin posibilidad de 
->utilizar base de datos y los devuelva en la petición.
+>1. ejecute un algoritmo que enriquezca unos datos obtenidos a través de un API (2 endpoints), para posteriormente
+    >guardarlos en una base de datos en memoria H2.
+>2. ejecute un algoritmo que enriquezca unos datos obtenidos a través de un API (2 endpoints) sin posibilidad de
+    >utilizar base de datos y los devuelva en la petición.
 >3. GET de la base de datos en memoria H2.
 
 Requisitos:
@@ -45,20 +45,20 @@ Se asume el siguiente escenario funcional:
 
 - Una **foto** puede tener o no asociado un **album**. Es decir, la existencia de una fotografía no está ligada a su pertenencia a un álbum (Modelo Flickr).
 - Un **album** puede estar vacío, presentando una relación O a N con las fotografías.
-  - El borrado de un **album** (Capacidad extra incorporada), no implica el borrado es cascada de las fotos que contuviera. 
-  
+  - El borrado de un **album** (Capacidad extra incorporada), no implica el borrado es cascada de las fotos que contuviera.
+
 - Nuestro microservicio podría estar siendo consumido por un front-end (Sencha Ext JS por ejemplo) que persigue las siguientes características:
   1. Se puede solicitar un listado de todos los **albums** incluyendo o no sus **fotos** vinculadas.
-     - La capa frontal puede buscar mostrar en una vista todos los álbumes sin aún conocer sus fotografías vinculadas (Carga rápida).
-       - Cuando se seleccione un álbum en particular, entonces se muestran las fotografías vinculadas (O puede ejecutarlo en segundo plano para ganar tiempo de respuesta en capa frontal).
-     - Aunque implique un mayor tiempo, la capa frontal puede solicitar un listado de albums que contenga a su vez las fotos vinculadas.
-     - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
-       - Dividir resultados totales en n páginas
-       - Obtener la página de resultados n
+    - La capa frontal puede buscar mostrar en una vista todos los álbumes sin aún conocer sus fotografías vinculadas (Carga rápida).
+      - Cuando se seleccione un álbum en particular, entonces se muestran las fotografías vinculadas (O puede ejecutarlo en segundo plano para ganar tiempo de respuesta en capa frontal).
+    - Aunque implique un mayor tiempo, la capa frontal puede solicitar un listado de albums que contenga a su vez las fotos vinculadas.
+    - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
+      - Dividir resultados totales en n páginas
+      - Obtener la página de resultados n
   2. Solicitar listado completo de fotografías
-     - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
-       - Dividir resultados totales en n páginas
-       - Obtener la página de resultados n
+    - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
+      - Dividir resultados totales en n páginas
+      - Obtener la página de resultados n
 - Validación de campos
   - Photo
     - Informar el título de una fotografía es obligatorio y su valor no puede exceder los 255 caracteres
@@ -66,7 +66,7 @@ Se asume el siguiente escenario funcional:
     - ThumbnailUrl (Optional), su valor no puede exceder los 255 caracteres
   - Album
     - Informar el título de un album es obligatorio y su valor no puede exceder los 255 caracteres
-    - Informar el id de usuario es obligatorio 
+    - Informar el id de usuario es obligatorio
 - Orden de datos
   - No se exige un orden particular en los datos mostrados
 
@@ -534,12 +534,12 @@ Para el desarrollo del proyecto he seguido el estándar de trabajo diario y que 
 
 1. Creación de una rama principal: *develop*
 2. En este ejercicio se nos pide desarrollar 3 funcionalidades distintas que podríamos canalizar en 3 tareas de distintas
-por ejemplo en JIRA.
-   3. Para cada funcionalidad, se crea una rama: feature/BCNC-XXX-XXX
-      - Expresamos de la forma más clara posible en los COMMITS en qué se ha trabajado.
+   por ejemplo en JIRA.
+  3. Para cada funcionalidad, se crea una rama: feature/BCNC-XXX-XXX
+    - Expresamos de la forma más clara posible en los COMMITS en qué se ha trabajado.
 3. Cuando la funcionalidad se ha finalizado (O se quiere hacer una subida), se hace push de dicha rama.
 4. En Github, de igual forma que haríamos en BitBucket por ejemplo y aunque aquí no hay un equipo, se hace una *Pull request*
-para incorporar la funcionalidad de la rama en develop. Si todo está correcto, se aprueba y se mergea.
+   para incorporar la funcionalidad de la rama en develop. Si todo está correcto, se aprueba y se mergea.
 5. En cada funcionalidad/fix/etc ... que se quiera incorporar, se repite este proceso.
 
 ![Git management](./src/main/resources/images/branches.png)
