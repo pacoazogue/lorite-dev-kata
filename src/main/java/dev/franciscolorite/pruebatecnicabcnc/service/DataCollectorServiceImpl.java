@@ -1,15 +1,20 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
-import dev.franciscolorite.pruebatecnicabcnc.api.AlbumMapper;
+import dev.franciscolorite.pruebatecnicabcnc.config.RepositoriesSelector;
+import dev.franciscolorite.pruebatecnicabcnc.config.api.AlbumMapper;
+import dev.franciscolorite.pruebatecnicabcnc.config.events.DatosCargadosEnMemoriaEventPublisher;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
-import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
-import dev.franciscolorite.pruebatecnicabcnc.model.dto.DataCollectorH2Response;
-import dev.franciscolorite.pruebatecnicabcnc.repository.*;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumWithPhotosDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.responses.DataCollectorH2Response;
+import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumInMemoryRepositoryImpl;
+import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumRepository;
+import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoInMemoryRepository;
+import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,6 +35,12 @@ public class DataCollectorServiceImpl implements DataCollectorService {
     private AlbumRepository albumRepository;
 
     private final AlbumMapper albumMapper;
+
+    @Autowired
+    private RepositoriesSelector repositoriesSelector;
+
+    @Autowired
+    private DatosCargadosEnMemoriaEventPublisher datosCargadosEnMemoriaEventPublisher;
 
     private List<Photo> photosFromJsonPlaceHolderServiceList;
     private List<Album> albumsFromJsonPlaceHolderServiceList;
@@ -64,7 +75,7 @@ public class DataCollectorServiceImpl implements DataCollectorService {
     }
 
     @Override
-    public List<AlbumDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory() {
+    public List<AlbumWithPhotosDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory() {
 
         getAppDataFromJsonPlaceHolderServer();
 
@@ -72,9 +83,15 @@ public class DataCollectorServiceImpl implements DataCollectorService {
         photoRepository = new PhotoInMemoryRepository();
         storePhotosDataInMemory();
 
+        repositoriesSelector.setPhotoRepository(photoRepository);
+
         logger.info("Almacenamiento de albums en memoria");
-        albumRepository = new AlbumInMemoryRepository();
+        albumRepository = new AlbumInMemoryRepositoryImpl();
         storeAlbumsDataInMemory();
+
+        repositoriesSelector.setAlbumRepository(albumRepository);
+
+        datosCargadosEnMemoriaEventPublisher.publishEvent("Evento - Datos cargados en memoria interna");
 
         return albumsFromJsonPlaceHolderServiceList.stream().map(this::buildAlbumDtoCompleteInformation).toList();
     }
@@ -135,13 +152,14 @@ public class DataCollectorServiceImpl implements DataCollectorService {
      * @param album
      * @return Catálogo completo representado a través de la clase AlbumDto
      */
-    private AlbumDto buildAlbumDtoCompleteInformation(Album album) {
+    private AlbumWithPhotosDto buildAlbumDtoCompleteInformation(Album album) {
 
         AlbumDto albumDto = albumMapper.entityToDto(album);
 
-        albumDto.setPhotoList(photoRepository.findByAlbumId(album.getId()));
+        AlbumWithPhotosDto albumWithPhotosDto = new AlbumWithPhotosDto(albumDto);
+        albumWithPhotosDto.setPhotosLinkedToAlbumList(photoRepository.findByAlbumId(album.getId()));
 
-        return albumDto;
+        return albumWithPhotosDto;
     }
 
     /*

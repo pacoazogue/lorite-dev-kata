@@ -1,4 +1,4 @@
-package dev.franciscolorite.pruebatecnicabcnc.api;
+package dev.franciscolorite.pruebatecnicabcnc.config.api;
 
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoDto;

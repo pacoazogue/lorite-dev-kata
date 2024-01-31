@@ -1,18 +1,22 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
-import dev.franciscolorite.pruebatecnicabcnc.api.AlbumMapper;
+import dev.franciscolorite.pruebatecnicabcnc.config.api.AlbumMapper;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.AlbumWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.Album;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
+import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumWithPhotosDto;
 import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumRepository;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,8 +24,11 @@ import java.util.stream.Collectors;
 @Service
 public class AlbumServiceImpl implements AlbumService {
 
-    private final AlbumRepository albumRepository;
-    private final PhotoRepository photoRepository;
+    @Getter @Setter
+    private AlbumRepository albumRepository;
+    @Getter @Setter
+    private PhotoRepository photoRepository;
+
     private final AlbumMapper albumMapper;
 
     public AlbumServiceImpl(AlbumRepository albumRepository, PhotoRepository photoRepository, AlbumMapper albumMapper) {
@@ -31,9 +38,9 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public List<AlbumDto> findAll(Integer page, Integer size, Boolean includePhotos) {
+    public List<? extends AlbumDto> findAll(Integer page, Integer size, Boolean includePhotos) {
 
-        List<AlbumDto> result;
+        List<AlbumDto> albumDtoList;
         List<Album> albumsList;
 
         if (size != 0) {
@@ -45,23 +52,28 @@ public class AlbumServiceImpl implements AlbumService {
             albumsList = albumRepository.findAll();
         }
 
-        result = albumsList.stream()
+        albumDtoList = albumsList.stream()
                 .map(albumMapper::entityToDto)
                 .collect(Collectors.toList());
 
         if (includePhotos) {
 
-            return result.stream().map(albumDto -> {
-                albumDto.setPhotoList(photoRepository.findByAlbumId(albumDto.getId()));
-                return albumDto;
-            }).collect(Collectors.toList());
-        }
+            List<AlbumWithPhotosDto> albumWithPhotosDtoList = new ArrayList<>();
 
-        return result;
+            albumDtoList.forEach(albumDto -> {
+                AlbumWithPhotosDto albumWithPhotosDto = new AlbumWithPhotosDto(albumDto);
+                albumWithPhotosDto.setPhotosLinkedToAlbumList(photoRepository.findByAlbumId(albumDto.getId()));
+                albumWithPhotosDtoList.add(albumWithPhotosDto);
+            });
+            
+            return albumWithPhotosDtoList;
+        } else {
+            return albumDtoList;
+        }
     }
 
     @Override
-    public AlbumDto findById(Long albumId) throws AlbumNotFoundException {
+    public AlbumWithPhotosDto findById(Long albumId) throws AlbumNotFoundException {
 
         Optional<Album> albumOpt = albumRepository.findById(albumId);
 
@@ -71,9 +83,10 @@ public class AlbumServiceImpl implements AlbumService {
 
         AlbumDto albumDto = albumMapper.entityToDto(albumOpt.get());
 
-        albumDto.setPhotoList(photoRepository.findByAlbumId(albumId));
+        AlbumWithPhotosDto albumWithPhotosDto = new AlbumWithPhotosDto(albumDto);
+        albumWithPhotosDto.setPhotosLinkedToAlbumList(photoRepository.findByAlbumId(albumId));
 
-        return albumDto;
+        return albumWithPhotosDto;
     }
 
     @Override
@@ -135,7 +148,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public AlbumDto unlinkPhotosFromAlbum(Long albumId) throws AlbumNotFoundException {
+    public AlbumWithPhotosDto unlinkPhotosFromAlbum(Long albumId) throws AlbumNotFoundException {
 
         Optional<Album> albumOpt = albumRepository.findById(albumId);
 
@@ -143,8 +156,9 @@ public class AlbumServiceImpl implements AlbumService {
             throw new AlbumNotFoundException(albumId);
         } else {
 
-            // Desvincular el album de las photos
-            List<Photo> photoList = photoRepository.findByAlbumId(albumId).stream().map(photo -> {photo.setAlbumId(null);
+            // Desvincular la referencia de "album_id" en todas las fotos que contuvieran su "album_id"
+            List<Photo> photoList = photoRepository.findByAlbumId(albumId).stream().map(photo -> {
+                photo.setAlbumId(null);
                 return photo;
             }).toList();
 
@@ -152,8 +166,8 @@ public class AlbumServiceImpl implements AlbumService {
         }
 
         AlbumDto albumDto = albumMapper.entityToDto(albumOpt.get());
-        albumDto.setPhotoList(null);
 
-        return albumDto;
+        return new AlbumWithPhotosDto(albumDto);
     }
+
 }

@@ -1,11 +1,13 @@
 package dev.franciscolorite.pruebatecnicabcnc.service;
 
-import dev.franciscolorite.pruebatecnicabcnc.api.PhotoMapper;
+import dev.franciscolorite.pruebatecnicabcnc.config.api.PhotoMapper;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoDto;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +20,8 @@ import java.util.stream.Collectors;
 @Service
 public class PhotoServiceImpl implements PhotoService {
 
-    private final PhotoRepository photoRepository;
+    @Getter @Setter
+    private PhotoRepository photoRepository;
     private final PhotoMapper photoMapper;
 
     public PhotoServiceImpl(PhotoRepository photoRepository, PhotoMapper photoMapper) {
@@ -76,9 +79,6 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public void delete(Long photoId) {
-
-
-
         photoRepository.deleteById(photoId);
     }
 

@@ -20,7 +20,22 @@ Requisitos:
 - Realizar al menos un test de integración.
 - IMPORTANTE: la eficiencia es lo más importante (elegir las estructuras de datos correctamente).
 
-## 2. Escenario funcional asumido
+## 2. Instrucciones para la ejecución del proyecto
+
+### 2.1 Arranque de la aplicación
+1. Tener la versión 17 de Java
+  - Comprueba la versión de Java instalada via `java --version`
+  - Si no se dispone de la version 17, se debe instalar via:
+    - `sudo apt install openjdk-17-jdk`
+    - `sudo apt install openjdk-17-jre`
+2. Nos situamos en la carpeta raiz del proyecto
+3. Ejecutar el proyecto via: `./mvnw spring-boot:run`
+
+### 2.2 Ejecución de los test
+
+Ejecutar `./mvnw test`
+
+## 3. Escenario funcional asumido
 
 A la hora de desarrollar la prueba técnica, hay que asumir o establecer un escenario funcional ya que una interpretación u otra
 pueden condicionar *diseño, validación de campos, configuración de JPA (En el caso de uso de base de datos relacional), estructuras
@@ -55,13 +70,18 @@ Se asume el siguiente escenario funcional:
 - Orden de datos
   - No se exige un orden particular en los datos mostrados
 
-## 3. Funcionalidades implementadas
+## 4. Funcionalidades implementadas
 
-Aparte de las funcionalidades básicas exigidas, se ha realizado:
+Aparte de las funcionalidades básicas exigidas, se han implementado las siguientes funcionalidades:
 
-- Photos
+### 4.1 Carga de datos
+- Carga de datos en base de datos en memoria H2 via endpoint
+- Carga de datos sin el uso de base de datos via endpoint (Y devolución de resultados en llamada)
+### 4.2 Con el uso de base de datos en memoria H2
+
+- **Photos**
   - Obtener todas las fotografías (GET)
-    - Posibilidad de paginado de resultados
+    - Posibilidad de paginado de resultados 
   - Búsqueda de una fotografía a partir de su ID (GET)
   - Creación de una fotografía (POST o PUT)
     - Validación de campos
@@ -70,7 +90,7 @@ Aparte de las funcionalidades básicas exigidas, se ha realizado:
   - Modificación del título de una fotografía (PATCH)
     - Validación de campos
   - Borrado de una fotografía (DELETE)
-- Albums
+- **Albums**
   - Obtener todos los albums (GET)
     - Posibilidad de paginado de resultados
     - Se otorga la posibilidad de incluir las fotografías asociadas o no en dicho listado
@@ -82,35 +102,423 @@ Aparte de las funcionalidades básicas exigidas, se ha realizado:
   - Modificación del título de un album (PATCH)
     - Validación de campos
   - Borrado de un album (DELETE)
-  - Desvincular todas las fotografías de un album (GET)
+  - Desvincular todas las fotografías de un album (GET) 
+
+### 4.3 Sin el uso de base de datos
+
+En este punto solo se exigía la devolución de los datos insertados en el propio end-point de carga.
+Sin embargo, se ha decidido implementar todas las funcionalidades mostradas para mostrar la versatilidad del sistema (Se detallará más adelante).
+
+Este punto ha supuesto bastante más trabajo por la dificultad que implicaba conseguir el propósito a través de una solución elegante (Uso de eventos spring, selección de repositos en tiempo de ejecución, etc...)
+
+- **Photos**
+  - Obtener todas las fotografías (GET)
+  - Búsqueda de una fotografía a partir de su ID (GET)
+  - Creación de una fotografía (POST o PUT)
+    - Validación de campos
+  - Modificación de datos de una fotografía al completo (PUT)
+    - Validación de campos
+  - Modificación del título de una fotografía (PATCH)
+    - Validación de campos
+  - Borrado de una fotografía (DELETE)
+- **Albums**
+  - Obtener todos los albums (GET)
+    - Se otorga la posibilidad de incluir las fotografías asociadas o no en dicho listado
+  - Búsqueda de un album a partir de su ID, incluyendo sus fotografías vinculadas (GET)
+  - Creación de un album (POST o PUT)
+    - Validación de campos
+  - Modificación de datos de un album al completo (PUT)
+    - Validación de campos
+  - Modificación del título de un album (PATCH)
+    - Validación de campos
+  - Borrado de un album (DELETE)
+
+
+### 4.4 Búsqueda de eficiencia y rendimiento
 
 En base al escenario funcional descrito en la sección 2, en las funcionalidades implementadas se persigue:
+
 1. Rapidez a la hora de encontrar un album o foto en particular
 2. Rapidez a la hora de borrar un album o foto en particular
 3. Rapidez a la hora de insertar un album o foto en particular
 4. Obtener listado de fotografías o albums bajo diferentes criterios
 
-## 4.Documentación
-### Swagger
+## 5.Arquitectura
 
-![Swagger](./src/main/resources/images/swagger.png)
+### 5.1 Estructuración del código
 
-Se ha documentado la API desarrollada a través de **Swagger** y se ha customizado la misma haciendo uso de **OpenApi**.
+La primera decisión a abordar tras la creación del proyecto es cómo modularizar/estructurar el código. **Spring Boot** no impone ninguna restricción al respecto por lo que podemos optar por varias opciones:
 
-Una vez ejecutado el proyecto, encontraremos la documentación en el siguiente enlace:
-- http://localhost:8080/swagger-ui/index.html (Formato .html)
-- http://localhost:8080/v3/api-docs (Formato .json)
+1. Organizar paquetes por capas (Package by layer)
+2. Organizar paquetes por característica (Package by feature)
+3. Uso de arquitectura hexagonal
+4. [Spring Modulith](https://spring.io/projects/spring-modulith)
 
-## 5.Testing
-### Test unitarios y test de integración
-### Postman
+Un dicho recurrente en la informática es que "no existe la bala de plata", es decir, se debe hacer uso del diseño, arquitectura, componentes que más se ajuste a las necesidades del problema.
 
-![Postman](./src/main/resources/images/postman.png)
+De las opciones a considerar, teniendo en cuenta la dimensión del ejercicio, voy a contrastar el uso de las opciones 1 y 2.
 
-Se ha hecho uso de la herramienta **Postman** para el testing de los servicios.
+>Organizar paquetes por capas (Package by layer)
 
-El archivo que contiene el conjunto de pruebas, clasificadas por controlador y funcionalidad, está disponible
-en los resources del proyecto: */resources/postman/BCNC API.postman_collection.json*
+
+![Package by layer](./src/main/resources/images/packagebylayer.png)
+
+Se trata del enfoque "clásico", en este modelo se organizan las clases en distintos paquetes que representan
+distintas capas:
+
+- Controller: Capa de presentación
+- Service: Maneja todos los detalles de negocio (Capa de negocio)
+- Repository: Se encarga del acceso a los datos (Capa de persistencia)
+- Model: Reflejamos las entidades/clases de dominio
+
+De esta forma, tendremos el código organizado en distintos paquetes que respondan a esta estructura:
+
+- controller
+  - photocontroller.java
+  - albumcontroller.java
+  - otrocontroller.java
+- service
+  - photoservice.java
+- repository
+  - photorepository.java
+- model
+  - photo.java
+  - dto
+    - photoDto.java
+
+Por supuesto adicionalmente existirán paquetes correspondientes a configuración, excepciones, etc ...
+
+> Organizar paquetes por característica (Package by feature)
+
+En este modelo, los paquetes agrupan y contienen todas las clases que son requeridas para el desarrollo de
+una característica. En nuestro caso sería:
+
+- Album (package)
+  - AlbumController.java
+  - AlbumService.java
+  - AlbumServiceImpl.java
+  - AlbumRepository.java
+  - Album.java
+  - AlbumDto.java
+- Photo (package)
+  - PhotoController.java
+  - PhotoService.java
+  - PhotoServiceImpl.java
+  - PhotoRepository.java
+  - Photo.java
+  - PhotoDto.java
+
+> Decisión adoptada
+
+En Ingeniería del Software, cuando tratamos de modularizar un sistema, idealmente buscamos conseguir una
+**alta cohesión y bajo acoplamiento**.
+
+Podemos definir **cohesión** como las relaciones existentes entres las clases o componentes de un módulo y
+**acoplamiento** como las relaciones o dependencias existentes entre módulos.
+
+![Cohesion and coupling](./src/main/resources/images/cohesioncoupling.png)
+
+Otro objetivo ideal a mencionar es la búsqueda de la máxima **encapsulación** posible, entendiéndolo como
+la capacidad de limitar el acceso directo a nuestros datos, por ejemplo los componentes de un objeto.
+
+Ateniéndonos a esto, la organización **por característica (Package by feature)** sería la ideal. ¿Por qué?
+
+- No existe dependencia de uso de clases entre distintos paquetes. La funcionalidad de "Photo" tiene todas sus
+  clases en el mismo paquete; controller, service, repository, etc..
+- Las clases del mismo paquete están estrechamente relacionadas entre ellas
+
+Esto representa claramente una **alta cohesión dentro de los paquetes y un bajo acomplamiento entre paquetes**,
+así como una alta modularidad.
+
+- Permite una mayor encapsulación de datos, ya que podemos situar la visibilidad de las clases al nivel de paquete
+  en lugar de público (Por ejemplo en el diseño por capas Controller necesita saber de Service y están en distintos paquetes).
+
+Este modelo es ideal para la elaboración de *microservicios* en un sistema de mayor magnitud la organización
+nos permitiría tener identificada perfectamente los módulos y extraerlos en un microservicio.
+
+El enfoque o la organización **por capas(Package by layer)** no presenta las ventajas anteriormente mencionadas.
+Este enfoque de hecho presentaría justo lo contrario a lo que se busca idealmente, tendríamos **una baja cohesión
+y un alto acoplamiento**.
+
+Sin embargo, como se ha resaltado anteriormente, se debe intentar adaptar la arquitectura a las necesidades del problema afrontado.
+Hay que tener en cuenta que estamos trabajando con un sistema no muy complejo, en el cual solo tenemos un
+microservicio con 3 endpoints y que persigue unas funcionalidades muy determinadas. 
+
+Por ello, se opta por **la estructuración en capas (package by layer)**, siendo un enfoque más orientado de momento al "monolito".
+
+Me parece razonable empezar con esta organización "monolito" y si el sistema creciera (Se añaden usuarios, colecciones de albums, etc...), no cabe la menor duda que adoptar una
+estructuración por característica sería el caballo ganador. Esta visión es compartida con el referente Martin Fowler https://www.martinfowler.com/bliki/MonolithFirst.html.
+
+### 5.2 Patrones de diseño utilizados
+
+> DTO (Data Transfer Object)
+
+En el desarrollo se ha usado este patrón, englobado dentro de los patrones de distribución
+ateniéndonos al libro de referencia *"Patterns of Enterprise Aplication Architecture"* de Martin Fowler:
+
+- https://martinfowler.com/eaaCatalog/dataTransferObject.html
+
+¿Por qué?
+
+En cada desarrollo hay que analizar las necesidades y el escenario en el que se trabaja, y en función de eso adoptar una solución.
+En este caso, busco que existe una separación clara entre las capas de presentación, servicio y persistencia.
+
+Conceptualmente, la cada de presentación no tiene por qué conocer los detalles de la capa de persistencia (La entidad en este caso). El
+uso de un objeto DTO nos permite añadir/acotar la información que se pretende mostrar al cliente (O recoger) a través de la API.
+
+El uso de este patrón DTO puede tener ventajas o inconvenientes según el caso (Algunos lo consideran incluso un anti-patrón), pero en este, me parece
+oportuno su uso por:
+
+- Segregación entre capas, la capa de presentación no está acoplada con la capa de persistencia/modelo.
+- En este caso no se realiza, pero por ejemplo podría buscarse mostrar al cliente atributos de dos entidades distintas, esto lo permite DTO.
+  Imaginemos que un futuro, cuando se obtiene una fotografía via GET, además de conocer el id de album, nos piden conocer el título del album.
+- Variedad en respuesta ofrecida en función de la petición. Esto se ha implementado en la solución a través de `AlbumWithPhotosDto y AlbumDto` (Mostrar album con fotografías asociadas o no, respectivamente)
+- Se trabaja de forma cómoda en el mapping de DTO a Entidad usando la librería de mapeado *org.modelmapper*
+
+> Mapper
+
+Para la conversión de DTO a Entidad usamos el patrón de diseño "Mapper", englobado en los patrones de diseño "Base Patterns".
+
+En este caso nos apoyamos en una librería externa *org.modelmapper* cuyo funcionamiento es adecuado, no reinventamos la rueda.
+
+> Patrón estrategia
+
+Podemos definir este patrón de comportamiento como:
+
+*"Podemos definir una familia de algoritmos, colocar cada uno de ellos en una clase separada y hacer sus objetos intercambiables."*
+
+Se ajusta a las necesidades del problema, ya que el desarrollo del ejercicio solicita:
+
+- Almacenamiento de datos en memoria H2
+- Almacenamiento de datos en memoria
+
+Se puede identificar que estamos buscando distintas estrategias o algoritmos para almacenar/consultar los datos. Sería
+un error que el sistema estuviera acoplado a una de las 2 necesidades concretas. Estaríamos violando el principio SOLID
+**"Principio de inversión de dependencias"**:
+
+"Las clases de alto nivel no deben depender de clases de bajo nivel. Ambas deben depender de abstracciones. Las
+abstracciones no deben depender de detalles. Los detalles deben depender de abstracciones."
+
+Aquí vemos un claro ejemplo de como hacerlo correctamente:
+
+![Inversión de la dependencia](./src/main/resources/images/depencyinversion.png)
+
+Se hace muy evidente con el ejemplo también, imaginemos que nuestra aplicación, aparte de H2 y memoria, también
+quiere poder hacer uso de PostgreSQL y MondoDB. Sin un buen diseño, la cosa se pondría peor aún.
+
+¿Cómo se ha aplicado este patrón en el ejercicio?
+
+`PhotoRepository` y '`AlbumRepository`' representan la interfaz o abstracción mostrada en el dibujo anterior.
+
+- Inserción de datos en memoria H2
+
+Cuando buscamos la inserción/consulta de datos en memoria H2 usamos el método GET "/bcncapp/api/loadDataIntoH2Memory" disponible
+en `DataCollectorController`.
+
+Siguiendo el flujo de llamada Controller -> Service -> ServiceImpl -> Repository, el momento en el que se
+define la estrategia a definir es en la capa de negocio, en la clase `DataCollectorServiceImpl`.
+
+Por defecto y como se puede observar en el constructor, el repositorio al que consultar será el que atañe
+a la base de datos H2 determinado por la configuración:
+
+```java
+public interface AlbumRepository extends ListCrudRepository<Album, Long>, PagingAndSortingRepository<Album, Long>{
+}
+
+```
+
+- Inserción de datos en memoria
+
+Cuando buscamos la inserción/consulta de datos en memoria usamos el método GET "/bcncapp/api/loadDataIntoMemory" disponible
+en `DataCollectorController`.
+
+Siguiendo el flujo lógico de llamadas Controller -> Service -> ServiceImpl -> Repository, el momento en el que se
+define la estrategia a definir es en la capa de negocio, en la clase `DataCollectorServiceImpl`.
+
+En esta ocasión, desde el controlador se llama al método loadDataFromJsonPlaceHolderServerAndSaveIntoMemory().
+
+En ese punto se especifica que hay que usar otra estrategia para salvar los datos, en este caso en memoria.
+
+```java
+    @Override
+public List<AlbumDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory() {
+
+  getAppDataFromJsonPlaceHolderServer();
+
+  logger.info("Almacenamiento de fotos en memoria");
+  photoRepository = new PhotoInMemoryRepository();
+  storePhotosDataInMemory();
+
+  logger.info("Almacenamiento de albums en memoria");
+  albumRepository = new AlbumInMemoryRepository();
+  storeAlbumsDataInMemory();
+
+  return albumsFromJsonPlaceHolderServiceList.stream().map(this::buildAlbumDtoCompleteInformation).toList();
+}
+
+```
+Ahora acudiremos a una estrategia o implementación concreta, que es `AlbumInMemoryRepository` y `PhotoInMemoryRepository`:
+
+```java
+public class PhotoInMemoryRepository implements PhotoRepository {
+    
+}
+
+public class AlbumInMemoryRepository implements AlbumRepository {
+    
+}
+```
+El uso de este patrón también nos lleva al cumplimiento del principio SOLID **"Principio abierto/cerrado"**, ya que
+podemos introducir tantas estrategias (O bases de datos en nuestro caso) como deseemos sin tener que cambiar el contexto del código.
+
+### 5.3 Gestión de excepciones
+
+La gestión de excepciones la realizamos haciendo uso de la anotación `@ControllerAdvice`.
+
+- https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/ControllerAdvice.html
+
+Se busca una gestión global de todas las excepciones que pueda provocar la aplicación. El resultado es la creación de la clase `GlobalExceptionHandler`
+
+Esto lo va a realizar la función:
+
+```java
+@ExceptionHandler({PhotoNotFoundException.class, PhotoWithSameTitleException.class,
+            AlbumNotFoundException.class, AlbumWithSameTitleException.class, Exception.class})
+    public final ResponseEntity<ErrorResponse> handleException(Exception exception) {
+
+        LOGGER.error("Manejo de la excepción " + exception.getClass().getSimpleName() + ". Motivo: "
+                + exception.getMessage());
+
+        if (exception instanceof PhotoNotFoundException) {
+            return buildResponseEntity(HttpStatus.NOT_FOUND, exception);
+        } else if (exception instanceof AlbumNotFoundException) {
+            return buildResponseEntity(HttpStatus.NOT_FOUND, exception);
+        } else if (exception instanceof AlbumWithSameTitleException) {
+            return buildResponseEntity(HttpStatus.OK, exception);
+        } else if (exception instanceof PhotoWithSameTitleException) {
+            return buildResponseEntity(HttpStatus.OK, exception);
+        } else {
+            return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, exception);
+        }
+    }
+```
+
+Tenemos estipuladas una serie de excepciones que puede producir el uso de la aplicación como se observa y las
+reflejamos en la anotación `@ExceptionHandler`.
+
+Cuando en la aplicación se produzca una excepción de estos tipos, será gestionada en este método. En función de su
+tipo, en este caso se crea una `ResponseEntity<ErrorResponse>` con un status determinado.
+
+La motivación es clara, de no ser gestionado así, en cada método de las clases Controller que produzca una excepción, debería
+crearse un método para gestionar la excepción con la anotación @ExceptionHandler.
+
+Varios controladores pueden producir la misma excepción, por lo cual estaríamos repitiendo código de gestión de error. Además, esta
+enfoque de gestión de excepciones presenta un código más claro y conciso. Desde un mismo punto visibilizamos y gestionamos las excepciones.
+
+Para tratar los errores provocados por la validación de ciertos campos, se sobreescribe el método
+handleMethodArgumentNotValid() heredado de la clase padre ResponseEntityExceptionHandler.
+
+### 5.4 Decisiones relativas a Spring
+
+- Inyección de dependencias por campo VS inyección de dependencias por constructor
+
+Por lo general, se recomienda inyectar dependencias a través del constructor, pero no debe de ser un dogma. En determinadas
+ocasiones la inyección por campo es adecuada (Imaginemos una clase que tuviera 10 dependencias y todas las hacemos via constructor, eso huele mal).
+
+Se ha adoptado un enfoque mixto dependiendo de las circunstancias
+
+- Posibilidad de establecer en tiempo de ejecución el repositorio usado en función de si la carga de datos se ha hecho en base de datos H2 o no
+
+En el ejercicio se pedía que en el caso de la carga de datos sin base de datos, en la propia petición se devuelvan los mismos. Sin embargo, he decidido ir un poco más allá y permitir que todas las operaciones CRUD implementadas también operen tras esta carga inicial.
+
+Como se ha citado anteriormente, se había previsto el uso de un repositorio u otro según el end-point llamado usando el patrón estrategia.
+Hasta ahí bien, pero ha surgido el problema técnico de cómo establecer de forma dinámica que las operaciones CRUD apuntaran
+a los repositorios que no usan base de datos `PhotoInMemoryRepository` y `AlbumInMemoryRepositoryImpl`.
+
+Tras realizar la carga inicial, usando GET '/bcncapp/api/loadDataIntoMemory', las operaciones findAll() y findById() no
+obtenían datos ya que se apuntaba por defecto al repositorio "relativo a H2" (Si no estuviéramos sujetos a una carga de datos por end-point se podría enfocar de otra forma).
+
+Se me ha ocurrido una solución para esto:
+- Uso de eventos de Spring
+- Creación de un componente "que recuerda que tipo de carga se ha hecho"
+
+1. Cuando se realiza una carga de datos sin usar base de datos, en la clase `DataCollectorServiceImpl` el componente`RepositoriesSelector`
+recoge los repositorios usados bajo esa estrategia.
+2. Lanza un evento específico creado que indicará que se ha hecho dicho tipo de carga:
+  - `DatosCargadosEnMemoriaInternaEvent`
+
+Creamos un publicador y un listener para la gestión de dicho evento a su vez: `DatosCargadosEnMemoriaEventListener` y `DatosCargadosEnMemoriaEventPublisher` 
+
+3. En el listener `DatosCargadosEnMemoriaEventListener` ante la recepción del evento:
+   - Se obtienen las implementaciones de la capa servicio `AlbumServiceImpl` y `PhotoServiceImpl` que serán usadas como sabemos por los controladores.
+   - Toleramos la posibilidad de establecer repositorios en dichas clases (SetRepository()) y le establecemos los repositorios que recogimos
+   anteriomente y que están almacenados en `repositoriesSelector`.
+
+Con esto, conseguimos que todo el conjunto de operaciones implementadas funcionen también para el caso de carga de datos sin base de datos de forma transparente.
+
+
+### 5.5 Diseño de la base de datos H2/Entidades
+
+En el caso de la carga de datos en base de datos H2, a la hora de configurar relaciones entre las entidades y atendiendo a la casuística del problema, una idea inicial en cuanto a configuración JPA fue:
+
+- En la entidad `Photo`
+
+```java
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "album_id")
+private Album album;
+
+```
+- En la entidad `Album`
+
+```java
+@OneToMany(mappedBy = "album")
+private List<Photo> photoList;
+```
+
+Sin embargo, teniendo en cuenta que con los requisitos funcionales asumidos y la información obtenida (La foto contiene la referencia al album),
+una configuración más sencilla era posible y a su vez podría cumplir con garantías las funcionalidades de relación entre estas 2 entidades.
+
+### 5.6 Clean code y principios SOLID
+
+Se ha intentado elaborar un código lo más limpio posible. El uso o no de comentarios es un tema que genera mucha controversia, yo en este
+caso he intentado usarlos lo más mínimo.
+
+En otro contexto (Y siempre y cuando no sea la respuesta a un código poco descriptivo) si que podría aportarse una mayor descripción de cada clase en su encabezado, documentar con mayor detalle algún método, javadocs, etc..
+
+Para describir las operaciones expuestas en el microservicio en este caso he optado por la customización via OpenApi.
+
+En cuanto al código que se ajusta a los principios **SOLID** (Se debe recordar que no son en sí un dogma, sino una solución ante la aparición de code smells), algunos se han citado en el documentación aunque podemos recapitularlos en este punto.
+
+1. Principio de responsabilidad única (SRP)
+
+Podríamos decir que nuestro sistema cumple este principio ya se ha intentado realizar una delimitación clara de responsabilidades:
+
+- Capa controladora: Expone las operaciones, valida y construye la respuesta basándose en lo obtenido en la capa de servicio
+- Capa de servicios: Tiene la responsabilidad de gestionar la lógica de negocio (Mapeamos entidades a dto y viceversa, paginación, etc..)
+- Capa de persistencia: Las clases de persistencia se dedican únicamente a interactuar con la base de datos (En el caso que se usen) y entidades
+
+2. Principio abierto-cerrado (OCP)
+
+Este principio lo podemos ver a través del patrón estrategia que hemos implementado.
+
+Imaginemos que aparte del uso de base de datos en memoria H2, se quisiera usar otro tipo de base de datos; MySql, MongoDB.
+
+Lo que tendríamos que hacer en este caso es crear una implementación de la interfaz existente. Es decir, el sistema
+va a estar cerrado ya que la capa de servicio se abstrae totalmente de estas opciones y está abierto porque se permiten nuevas
+implementaciones (Base de datos en este caso).
+
+3. Principio de sustitución de Liskov (LSP)
+
+Este principio está presente en las clases `AlbumDto y AlbumWithPhotoDto`.
+
+El método `findAll` de la clase `AlbumServiceImpl` se adapta sin problema al uso de la clase padre (AlbumDto) o la clase hija (AlbumWithPhotoDto).
+
+4. Principio de segregación de la interfaz (ISP)
+
+5. Principio de inversión de dependencias
+
+Mencionado en el apartado de "5.2 Patrones de diseño utilizados"
 
 ## 6. Desarrollo
 
@@ -525,6 +933,7 @@ Todas estas operaciones están canalizadas en los repositorios PhotoInMemoryRepo
 
 ### 6.5 Tercer endpoint: feature/BCNC-003-tercer-endpoint
 
+La documentación ya existente describe el desarrollo (Y las funcionalidades extra) de este punto
 
 ### 6.6 Mejoras: feature/BCNC-004-mejoras
 
@@ -544,234 +953,50 @@ En esta rama se han añadido/desarrollado:
   - AlbumControllerTest
   - PhotoControllerTest
 
-## 7.Arquitectura
 
-### 7.1 Estructuración del código
 
-La primera decisión a abordar tras la creación del proyecto es cómo modularizar/estructurar el código.
+## 7.Documentación de la API
+### Swagger
 
-#Spring Boot# no impone ninguna restricción al respecto por lo que podemos optar por varias opciones:
+![Swagger](./src/main/resources/images/swagger.png)
 
-1. Organizar paquetes por capas (Package by layer)
-2. Organizar paquetes por característica (Package by feature)
-3. Uso de arquitectura hexagonal
-4. [Spring Modulith](https://spring.io/projects/spring-modulith)
+Se ha documentado la API desarrollada a través de **Swagger** y se ha customizado la misma haciendo uso de **OpenApi**.
 
-No existe una solución fija ni preferente para Spring Boot, se debe hacer el uso de la
-arquitectura que más se ajuste a las necesidades del problema.
+Una vez ejecutado el proyecto, encontraremos la documentación en el siguiente enlace:
+- http://localhost:8080/swagger-ui/index.html (Formato .html)
+- http://localhost:8080/v3/api-docs (Formato .json)
 
-De las opciones a considerar, teniendo en cuenta la dimensión del ejercicio, voy a contrastar el uso de las opciones 1 y 2.
+## 8.Testing y medición de calidad de código
 
->Organizar paquetes por capas (Package by layer)
+### 8.1 Test unitarios y test de integración
 
+Los métodos CRUD implementados para las clases PhotoController y AlbumController, se han testeado en las
+clase AlbumControllerTest y PhotoControllerTest.
 
-![Package by layer](./src/main/resources/images/packagebylayer.png)
+Se ha usado *JUnit 5* y para no depender de una base de datos se ha usado *Mockito*.
 
-Se trata del enfoque "clásico", en este modelo se organizan las clases en distintos paquetes que representan
-distintas capas:
+Los test de integración están recogidos en clases:
+- AlbumControllerIT
+- PhotoControllerIT
+- DataCollectorControllerIT
 
-- Controller: Capa de presentación
-- Service: Maneja todos los detalles de negocio (Capa de negocio)
-- Repository: Se encarga del acceso a los datos (Capa de persistencia)
-- Model: Reflejamos las entidades/clases de dominio 
+Para los test de integración se ha hecho uso de **MockMvc**.
 
-De esta forma, tendremos el código organizado en distintos paquetes que respondan a esta estructura:
+### 8.2 Postman
 
-- controller
-  - photocontroller.java
-  - albumcontroller.java
-  - otrocontroller.java
-- service
-  - photoservice.java
-- repository
-  - photorepository.java
-- model
-  - photo.java
-  - photoDto.java
-> Organizar paquetes por característica (Package by feature)
+![Postman](./src/main/resources/images/postman.png)
 
-En este modelo, los paquetes agrupan y contienen todas las clases que son requeridas para el desarrollo de
-una característica. En nuestro caso sería:
+Se ha hecho uso de la herramienta **Postman** para el testing de los servicios.
 
-- Album (package)
-  - AlbumController.java
-  - AlbumService.java
-  - AlbumServiceImpl.java
-  - AlbumRepository.java
-  - Album.java
-  - AlbumDto.java
-- Photo (package)
-  - PhotoController.java
-  - PhotoService.java
-  - PhotoServiceImpl.java
-  - PhotoRepository.java
-  - Photo.java
-  - PhotoDto.java 
+El archivo que contiene el conjunto de pruebas, clasificadas por controlador y funcionalidad, está disponible
+en los resources del proyecto: */resources/postman/BCNC API.postman_collection.json*
 
-> Decisión adoptada
+## 8.3 Cobertura de código
 
-En Ingeniería del Software, cuando tratamos de modularizar un sistema, idealmente buscamos conseguir una
-**alta cohesión y bajo acoplamiento**.
+Para analizar la cobertura de código se ha usado la herramienta de Intellij 'Run tests with coverage'.
 
-Podemos definir **cohesión** como las relaciones existentes entres las clases o componentes de un módulo y
-**acoplamiento** como las relaciones o dependencias existentes entre módulos.
+![Coverage](./src/main/resources/images/coverage.png)
 
-![Cohesion and coupling](./src/main/resources/images/cohesioncoupling.png)
+## 8.4 Calidad de código
 
-También merece la pena mencionar que buscamos que nuestro sistema presente **encapsulación**, entendiéndolo como
-la capacidad de limitar el acceso directo a nuestros datos, por ejemplo los componentes de un objeto.
-
-Ateniéndonos a esto, la organización **por característica(Package by feature)** sería la ideal. ¿Por qué?
-
-- No existe dependencia de uso de clases entre distintos paquetes. La funcionalidad de "Photo" tiene todas sus
-  clases en el mismo paquete; controller, service, repository, etc..
-- Las clases del mismo paquete están estrechamente relacionadas entre ellas
-
-Esto representa claramente una **alta cohesión dentro de los paquetes y un bajo acomplamiento entre paquetes**,
-así como una alta modularidad.
-
-- Permite una mayor encapsulación de datos, ya que podemos situar la visibilidad de las clases al nivel de paquete
-  en lugar de público (Por ejemplo en el diseño por capas Controller necesita saber de Service y están en distintos paquetes).
-
-Este modelo es ideal para la elaboración de *microservicios* en un sistema de mayor magnitud la organización
-nos permitiría tener identificada perfectamente los módulos y extraerlos en un microservicio.
-
-El enfoque o la organización **por capas(Package by layer)** no presenta las ventajas anteriormente mencionadas.
-Este enfoque de hecho presentaría justo lo contrario a lo que se busca idealmente, tendríamos **una baja cohesión
-y un alto acoplamiento**.
-
-Pese a ello, hay que tener en cuenta que estamos trabajando con un sistema "sencillo" en el cual solo tenemos un
-microservicio con 3 endpoints y que persigue unas funcionalidades muy determinadas. Por ello, se opta por este
-enfoque más orientado de momento al "monolito".
-
-Estoy totalmente de acuerdo con la visión de Martin Fowler que refleja en https://www.martinfowler.com/bliki/MonolithFirst.html aplicada a este caso.
-
-Me parece razonable empezar con esta organización "monolito" y si el sistema creciera (Se añaden usuarios, colecciones de albums, etc...), no cabe la menor duda que adoptar una
-estructuración por característica sería el caballo ganador.
-
-### 7.2 Patrones de diseño utilizados
-
-> DTO (Data Transfer Object)
-
-En el desarrollo se ha usado este patrón, englobado dentro de los patrones de distribución
-ateniéndonos al libro de referencia *"Patterns of Enterprise Aplication Architecture"* de Martin Fowler:
-
-- https://martinfowler.com/eaaCatalog/dataTransferObject.html
-
-¿Por qué?
-
-En cada desarrollo hay que analizar las necesidades y el escenario en el que se trabaja, y en función de eso adoptar una solución.
-En este caso, busco que existe una separación clara entre las capas de presentación, servicio y persistencia.
-
-Conceptualmente, la cada de presentación no tiene por qué conocer los detalles de la capa de persistencia (La entidad en este caso). El
-uso de un objeto DTO nos permite añadir/acotar la información que se pretende mostrar al cliente (O recoger) a través de la API.
-
-El uso de este patrón DTO puede tener ventajas o inconvenientes según el caso (Algunos lo consideran incluso un anti-patrón), pero en este, me parece
-oportuno su uso por:
-
-- Segregación entre capas, la capa de presentación no está acoplada con la capa de persistencia/modelo.
-- En este caso no se realiza, pero por ejemplo podría buscarse mostrar al cliente atributos de dos entidades distintas, esto lo permite DTO.
-Imaginemos que un futuro, cuando se obtiene una fotografía via GET, además de conocer el id de album, nos piden conocer el título del album.
-
-Por otro lado, podría aparecer el requisito o que no fuera necesario mostrar un atributo de la entidad al usuario.
-- Se trabaja de forma cómoda en el mapping de DTO a Entidad usando la librería de mapeado *org.modelmapper*
-
-La aplicación de este patrón también nos acerca al cumplimiento del primer principio SOLID *principio de responsabilidad única*.
-
-> Mapper 
-
-Para la conversión de DTO a Entidad usamos el patrón de diseño "Mapper", englobado en los patrones de diseño "Base Patterns".
-
-En este caso nos apoyamos en una librería externa *org.modelmapper* cuyo funcionamiento es adecuado, no reinventamos la rueda.
-
-> Patrón estrategia
-
-Podemos definir este patrón de comportamiento como:
-
-*"Podemos definir una familia de algoritmos, colocar cada uno de ellos en una clase separada y hacer sus objetos intercambiables."*
-
-Se ajusta a las necesidades del problema, ya que el desarrollo del ejercicio solicita:
-
-- Almacenamiento de datos en memoria H2
-- Almacenamiento de datos en memoria
-
-Se puede identificar que estamos buscando distintas estrategias o algoritmos para almacenar/consultar los datos. Sería
-un error que el sistema estuviera acoplado a una de las 2 necesidades concretas. Estaríamos violando el principio SOLID
-"Principio de inversión de la dependencia":
-
-"Las clases de alto nivel no deben depender de clases de bajo nivel. Ambas deben depender de abstracciones. Las
-abstracciones no deben depender de detalles. Los detalles deben depender de abstracciones."
-
-Aquí vemos un claro ejemplo de como hacerlo correctamente:
-
-![Inversión de la dependencia](./src/main/resources/images/depencyinversion.png)
-
-Se hace muy evidente con el ejemplo también, imaginemos que nuestra aplicación, aparte de H2 y memoria, también
-quiere poder hacer uso de PostgreSQL y MondoDB. Sin un buen diseño, la cosa se pondría peor aún.
-
-¿Cómo se ha aplicado este patrón en el ejercicio?
-
-`PhotoRepository` y '`AlbumRepository`' representan la interfaz o abstracción mostrada en el dibujo anterior.
-
-- Inserción de datos en memoria H2
-
-Cuando buscamos la inserción/consulta de datos en memoria H2 usamos el método GET "/bcncapp/api/loadDataIntoH2Memory" disponible
-en `DataCollectorController`.
-
-Siguiendo el flujo de llamada Controller -> Service -> ServiceImpl -> Repository, el momento en el que se 
-define la estrategia a definir es en la capa de negocio, en la clase `DataCollectorServiceImpl`.
-
-Por defecto y como se puede observar en el constructor, el repositorio al que consultar será el que atañe
-a la base de datos H2 determinado por la configuración:
-
-```java
-public interface AlbumRepository extends ListCrudRepository<Album, Long>, PagingAndSortingRepository<Album, Long>{
-}
-
-```
-
-- Inserción de datos en memoria
-
-Cuando buscamos la inserción/consulta de datos en memoria usamos el método GET "/bcncapp/api/loadDataIntoMemory" disponible
-en `DataCollectorController`.
-
-Siguiendo el flujo de llamada Controller -> Service -> ServiceImpl -> Repository, el momento en el que se
-define la estrategia a definir es en la capa de negocio, en la clase `DataCollectorServiceImpl`.
-
-En esta ocasión, desde el controlador se llama al método loadDataFromJsonPlaceHolderServerAndSaveIntoMemory().
-
-En ese punto se especifica que hay que usar otra estrategia para salvar los datos, en este caso en memoria.
-
-```java
-    @Override
-public List<AlbumDto> loadDataFromJsonPlaceHolderServerAndSaveIntoMemory() {
-
-  getAppDataFromJsonPlaceHolderServer();
-
-  logger.info("Almacenamiento de fotos en memoria");
-  photoRepository = new PhotoInMemoryRepository();
-  storePhotosDataInMemory();
-
-  logger.info("Almacenamiento de albums en memoria");
-  albumRepository = new AlbumInMemoryRepository();
-  storeAlbumsDataInMemory();
-
-  return albumsFromJsonPlaceHolderServiceList.stream().map(this::buildAlbumDtoCompleteInformation).toList();
-}
-
-```
-Ahora acudiremos a una estrategia o implementación concreta, que es `AlbumInMemoryRepository` y `PhotoInMemoryRepository`:
-
-```java
-public class PhotoInMemoryRepository implements PhotoRepository {
-    
-}
-
-public class AlbumInMemoryRepository implements AlbumRepository {
-    
-}
-```
-El uso de este patrón también nos lleva al cumplimiento del principio SOLID "Principio abierto/cerrado" ya que
-podemos introducir tantas estrategias (O bases de datos en nuestro caso) como deseemos sin tener que cambiar el contexto del código.
-
-
+La calidad del código se ha ido vigilando también a través de las herramientas ofrecidas por Intellij.

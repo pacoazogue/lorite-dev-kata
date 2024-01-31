@@ -3,7 +3,7 @@ package dev.franciscolorite.pruebatecnicabcnc.controller;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoNotFoundException;
 import dev.franciscolorite.pruebatecnicabcnc.exception.PhotoWithSameTitleException;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoDto;
-import dev.franciscolorite.pruebatecnicabcnc.model.dto.PhotoResponse;
+import dev.franciscolorite.pruebatecnicabcnc.model.responses.PhotoResponse;
 import dev.franciscolorite.pruebatecnicabcnc.service.PhotoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

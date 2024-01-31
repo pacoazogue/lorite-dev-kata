@@ -4,6 +4,7 @@ import dev.franciscolorite.pruebatecnicabcnc.model.Album;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +13,12 @@ import java.util.Optional;
 /**
  * CustomPhotoRepository - Clase repositorio de Photos que son almacenados en memoria
  */
-public class AlbumInMemoryRepository implements AlbumRepository {
+public class AlbumInMemoryRepositoryImpl implements AlbumRepository {
 
 
     private final HashMap<Long, Album> albumsMap;
 
-    public AlbumInMemoryRepository() {
+    public AlbumInMemoryRepositoryImpl() {
         albumsMap = new HashMap<>();
     }
 

@@ -1,4 +1,4 @@
-package dev.franciscolorite.pruebatecnicabcnc.model.dto;
+package dev.franciscolorite.pruebatecnicabcnc.model.responses;
 
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import lombok.Getter;

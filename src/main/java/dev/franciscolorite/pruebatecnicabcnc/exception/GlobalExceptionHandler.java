@@ -1,6 +1,6 @@
 package dev.franciscolorite.pruebatecnicabcnc.exception;
 
-import dev.franciscolorite.pruebatecnicabcnc.model.dto.ErrorResponse;
+import dev.franciscolorite.pruebatecnicabcnc.model.responses.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -34,9 +34,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         } else if (exception instanceof AlbumNotFoundException) {
             return buildResponseEntity(HttpStatus.NOT_FOUND, exception);
         } else if (exception instanceof AlbumWithSameTitleException) {
-            return buildResponseEntity(HttpStatus.OK, exception);
+            return buildResponseEntity(HttpStatus.BAD_REQUEST, exception);
         } else if (exception instanceof PhotoWithSameTitleException) {
-            return buildResponseEntity(HttpStatus.OK, exception);
+            return buildResponseEntity(HttpStatus.BAD_REQUEST, exception);
         } else {
             return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, exception);
         }
