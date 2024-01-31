@@ -8,7 +8,7 @@ import dev.franciscolorite.pruebatecnicabcnc.model.Photo;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumDto;
 import dev.franciscolorite.pruebatecnicabcnc.model.dto.AlbumWithPhotosDto;
 import dev.franciscolorite.pruebatecnicabcnc.model.responses.DataCollectorH2Response;
-import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumInMemoryRepositoryImpl;
+import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumInMemoryRepository;
 import dev.franciscolorite.pruebatecnicabcnc.repository.AlbumRepository;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoInMemoryRepository;
 import dev.franciscolorite.pruebatecnicabcnc.repository.PhotoRepository;
@@ -86,7 +86,7 @@ public class DataCollectorServiceImpl implements DataCollectorService {
         repositoriesSelector.setPhotoRepository(photoRepository);
 
         logger.info("Almacenamiento de albums en memoria");
-        albumRepository = new AlbumInMemoryRepositoryImpl();
+        albumRepository = new AlbumInMemoryRepository();
         storeAlbumsDataInMemory();
 
         repositoriesSelector.setAlbumRepository(albumRepository);

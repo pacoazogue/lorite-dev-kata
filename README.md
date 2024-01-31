@@ -49,16 +49,16 @@ Se asume el siguiente escenario funcional:
 
 - Nuestro microservicio podría estar siendo consumido por un front-end (Sencha Ext JS por ejemplo) que persigue las siguientes características:
   1. Se puede solicitar un listado de todos los **albums** incluyendo o no sus **fotos** vinculadas.
-    - La capa frontal puede buscar mostrar en una vista todos los álbumes sin aún conocer sus fotografías vinculadas (Carga rápida).
-      - Cuando se seleccione un álbum en particular, entonces se muestran las fotografías vinculadas (O puede ejecutarlo en segundo plano para ganar tiempo de respuesta en capa frontal).
-    - Aunque implique un mayor tiempo, la capa frontal puede solicitar un listado de albums que contenga a su vez las fotos vinculadas.
-    - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
-      - Dividir resultados totales en n páginas
-      - Obtener la página de resultados n
+     - La capa frontal puede buscar mostrar en una vista todos los álbumes sin aún conocer sus fotografías vinculadas (Carga rápida).
+       - Cuando se seleccione un álbum en particular, entonces se muestran las fotografías vinculadas (O puede ejecutarlo en segundo plano para ganar tiempo de respuesta en capa frontal).
+     - Aunque implique un mayor tiempo, la capa frontal puede solicitar un listado de albums que contenga a su vez las fotos vinculadas.
+     - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
+       - Dividir resultados totales en n páginas
+       - Obtener la página de resultados n
   2. Solicitar listado completo de fotografías
-    - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
-      - Dividir resultados totales en n páginas
-      - Obtener la página de resultados n
+     - Paginación de resultados (Mejora de experiencia de usuario y tiempo de respuesta en web)
+       - Dividir resultados totales en n páginas
+       - Obtener la página de resultados n
 - Validación de campos
   - Photo
     - Informar el título de una fotografía es obligatorio y su valor no puede exceder los 255 caracteres
@@ -309,6 +309,9 @@ quiere poder hacer uso de PostgreSQL y MondoDB. Sin un buen diseño, la cosa se 
 ¿Cómo se ha aplicado este patrón en el ejercicio?
 
 `PhotoRepository` y '`AlbumRepository`' representan la interfaz o abstracción mostrada en el dibujo anterior.
+
+`AlbumInMemoryRepository` y 'PhotoInMemoryRepository' implementan la interfaz para definir una estrategia en concreto, en este caso la manipulación
+de datos directamente en memoria.
 
 - Inserción de datos en memoria H2
 
@@ -945,13 +948,7 @@ En esta rama se han añadido/desarrollado:
     - Se valida que los campos **url** y **thumbnailUrl** no superen los 255 caracteres.
   - Albums
     - Se valida que el campo **titulo** se informe a la hora de realizar una operación POST o PUT, que no esté vacío y que no conteng más de 255 caracteres (Se asume que estamos cómodo con un VARCHAR(255))
-- Test de integración de los 3 controladores desarrollados
-  - AlbumControllerIT
-  - PhotoControllerIT
-  - DataCollectorControllerIT
-- Se añaden los casos de validación a los test unitarios de los controladores
-  - AlbumControllerTest
-  - PhotoControllerTest
+
 
 
 
