@@ -2,7 +2,7 @@
 
 ## 1. Introducción
 
-Este repositorio responde a la funcionalidad solicitada:
+Este repositorio responde a la funcionalidad:
 
 >Realizar un microservicio en SpringBoot que tenga 3 endpoints:
 >1. ejecute un algoritmo que enriquezca unos datos obtenidos a través de un API (2 endpoints), para posteriormente
